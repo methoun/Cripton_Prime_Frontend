@@ -1,0 +1,9 @@
+<mat-card class="dash">
+  <div class="row">
+    <mat-icon>dashboard</mat-icon>
+    <div>
+      <div class="h">Administration Dashboard</div>
+      <div class="p">Welcome to {{ (activeModule$ | async)?.name ?? 'Administration' }} module.</div>
+    </div>
+  </div>
+</mat-card>

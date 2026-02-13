@@ -1,0 +1,33 @@
+.shell {
+  height: 100vh;
+}
+
+.shell-sidenav {
+  width: 260px;
+  border-right: 1px solid #e5e5e5;
+}
+
+.shell-content {
+  height: 100%;
+}
+
+.shell-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.shell-body {
+  height: calc(100vh - 64px);
+  overflow: auto;
+  background: #f6f7fb;
+}

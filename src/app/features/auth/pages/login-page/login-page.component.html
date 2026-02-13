@@ -1,0 +1,52 @@
+<div class="login-wrap">
+  <div class="brand">
+    <div class="name">CriptonPrime</div>
+    <div class="sub">ERP</div>
+  </div>
+
+  <mat-card class="login-card">
+    <mat-card-title>Sign in to start your session</mat-card-title>
+
+    <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Company</mat-label>
+        <mat-select formControlName="company">
+          <mat-option value="CriptonPrime Limited">CriptonPrime Limited</mat-option>
+        </mat-select>
+        <mat-icon matSuffix>business</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Office</mat-label>
+        <mat-select formControlName="office">
+          <mat-option value="Head Office">Head Office</mat-option>
+        </mat-select>
+        <mat-icon matSuffix>place</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" autocomplete="username" />
+        <mat-icon matSuffix>person</mat-icon>
+        <mat-error *ngIf="form.controls.username.touched && form.controls.username.invalid">Username is required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" autocomplete="current-password" />
+        <button mat-icon-button matSuffix type="button" (click)="togglePassword()" [attr.aria-label]="'Toggle password visibility'">
+          <mat-icon>{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
+        <mat-error *ngIf="form.controls.password.touched && form.controls.password.invalid">Password is required</mat-error>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" class="submit" type="submit" [disabled]="busy">
+        {{ busy ? 'Signing in…' : 'Sign In' }}
+      </button>
+
+      <a class="forgot" href="javascript:void(0)">Forgot Password?</a>
+    </form>
+  </mat-card>
+
+  <div class="footer">© 2026 CriptonPrime ERP</div>
+</div>

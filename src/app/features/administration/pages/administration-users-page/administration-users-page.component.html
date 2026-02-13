@@ -1,0 +1,37 @@
+<div class="users">
+  <mat-card class="card">
+    <div class="head">
+      <div class="title">Users</div>
+      <div class="sub">Create a user using backend endpoint <code>POST /api/users/create</code></div>
+    </div>
+
+    <form [formGroup]="form" class="form">
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" />
+        <mat-icon matSuffix>person</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Full Name</mat-label>
+        <input matInput formControlName="fullName" />
+        <mat-icon matSuffix>badge</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" />
+        <mat-icon matSuffix>mail</mat-icon>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" type="button" (click)="create()" [disabled]="busy">
+        {{ busy ? 'Saving…' : 'Create User' }}
+      </button>
+    </form>
+  </mat-card>
+
+  <mat-card class="card result" *ngIf="createdUser">
+    <div class="title">Created User</div>
+    <pre>{{ createdUser | json }}</pre>
+  </mat-card>
+</div>

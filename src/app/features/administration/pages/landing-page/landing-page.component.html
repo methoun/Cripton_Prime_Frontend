@@ -1,0 +1,13 @@
+<ng-container *ngIf="modules$ | async as modules">
+  <mat-card class="module-card" *ngFor="let m of modules">
+    <div class="row">
+      <mat-icon>{{ m.icon || 'apps' }}</mat-icon>
+      <div class="name">{{ m.name }}</div>
+    </div>
+
+    <button mat-raised-button color="primary" (click)="openModule(m)">
+      Open
+      <mat-icon>arrow_forward</mat-icon>
+    </button>
+  </mat-card>
+</ng-container>

@@ -1,0 +1,50 @@
+<mat-sidenav-container class="shell">
+  <mat-sidenav class="shell-sidenav" [mode]="'side'" [opened]="sidenavOpened">
+    <!-- ✅ No inputs/outputs here -->
+    <app-sidebar></app-sidebar>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="shell-content">
+    <mat-toolbar color="primary" class="shell-toolbar">
+      <button mat-icon-button (click)="toggleSidenav()">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <span class="brand" style="margin-left: 8px">CriptonERP</span>
+      <span class="spacer"></span>
+
+      <button mat-icon-button>
+        <mat-icon matBadge="3" matBadgeColor="warn">notifications</mat-icon>
+      </button>
+
+      <button mat-button [matMenuTriggerFor]="userMenu">
+        <img
+          [src]="userImageUrl"
+          alt="user"
+          style="width: 26px; height: 26px; border-radius: 50%; margin-right: 8px"
+        />
+        {{ userName }}
+        <mat-icon style="margin-left: 6px">expand_more</mat-icon>
+      </button>
+
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item (click)="goToModules()">
+          <mat-icon>apps</mat-icon>
+          <span>Modules</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="onLogout()">
+          <mat-icon>logout</mat-icon>
+          <span>Logout</span>
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <div class="shell-body">
+      <!-- ✅ Breadcrumb has NO @Input now -->
+      <app-breadcrumb></app-breadcrumb>
+
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

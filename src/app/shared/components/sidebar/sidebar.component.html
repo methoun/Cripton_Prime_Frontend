@@ -1,0 +1,71 @@
+<div class="sidebar">
+
+  <!-- MODULE LIST -->
+  <ng-container *ngIf="(activeModule$ | async) === null; else treeMode">
+    <h3 class="title">Modules</h3>
+
+    <div class="module-list">
+      <button class="module-item"
+              *ngFor="let m of (modules$ | async) ?? []"
+              (click)="selectModule(m)">
+
+        <span class="icon">
+          <i *ngIf="m.icon && !isMaterialIcon(m.icon)" [class]="m.icon"></i>
+          <mat-icon *ngIf="m.icon && isMaterialIcon(m.icon)">{{ m.icon }}</mat-icon>
+          <mat-icon *ngIf="!m.icon">apps</mat-icon>
+        </span>
+
+        <span class="name">{{ m.name }}</span>
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- TREE MODE -->
+  <ng-template #treeMode>
+
+    <button class="back-btn" (click)="clearModule()">
+      <mat-icon>arrow_back</mat-icon>
+      Modules
+    </button>
+
+    <input class="search"
+           [(ngModel)]="searchText"
+           placeholder="Search menu..." />
+
+    <mat-accordion multi="true">
+      <mat-expansion-panel *ngFor="let menu of (filteredMenus$ | async) ?? []">
+
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span class="icon">
+              <i *ngIf="menu.icon && !isMaterialIcon(menu.icon)" [class]="menu.icon"></i>
+              <mat-icon *ngIf="menu.icon && isMaterialIcon(menu.icon)">{{ menu.icon }}</mat-icon>
+              <mat-icon *ngIf="!menu.icon">folder</mat-icon>
+            </span>
+
+            {{ menu.title }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <!-- menu.route clickable -->
+        <button class="submenu-item"
+                *ngIf="menu.route && (!menu.subMenus || menu.subMenus.length === 0)"
+                (click)="goRoute(menu.route)">
+          <mat-icon>chevron_right</mat-icon>
+          {{ menu.title }}
+        </button>
+
+        <!-- submenu list -->
+        <button class="submenu-item"
+                *ngFor="let sm of (menu.subMenus ?? [])"
+                (click)="goRoute(sm.route)">
+          <mat-icon>chevron_right</mat-icon>
+          {{ sm.title }}
+        </button>
+
+      </mat-expansion-panel>
+    </mat-accordion>
+
+  </ng-template>
+
+</div>

@@ -1,0 +1,27 @@
+.dash {
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+mat-icon {
+  width: 44px;
+  height: 44px;
+  font-size: 44px;
+  opacity: .85;
+}
+
+.h {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.p {
+  font-size: 13px;
+  opacity: .7;
+}

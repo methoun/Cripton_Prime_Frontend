@@ -1,0 +1,37 @@
+import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
+import { NoAuthGuard } from './core/guards/no-auth.guard';
+
+import { LoginPageComponent } from './features/auth/pages/login-page/login-page.component';
+import { LandingPageComponent } from './features/administration/pages/landing-page/landing-page.component';
+import { AppShellComponent } from './shared/components/app-shell/app-shell.component';
+
+import { AdministrationDashboardPageComponent } from './features/administration/pages/administration-dashboard-page/administration-dashboard-page.component';
+import { AdministrationUsersPageComponent } from './features/administration/pages/administration-users-page/administration-users-page.component';
+import { HrmDashboardPageComponent } from './features/hrm/pages/hrm-dashboard-page/hrm-dashboard-page.component';
+import { PrlDashboardPageComponent } from './features/prl/pages/prl-dashboard-page/prl-dashboard-page.component';
+
+export const routes: Routes = [
+  {
+    path: 'login',
+    canActivate: [NoAuthGuard],
+    component: LoginPageComponent
+  },
+  {
+    path: '',
+    canActivate: [authGuard],
+    component: AppShellComponent,
+    children: [
+      { path: 'landing', component: LandingPageComponent },
+
+      { path: 'administration/dashboard', component: AdministrationDashboardPageComponent },
+      { path: 'administration/users', component: AdministrationUsersPageComponent },
+
+      { path: 'hrm/dashboard', component: HrmDashboardPageComponent },
+      { path: 'prl/dashboard', component: PrlDashboardPageComponent },
+
+      { path: '', pathMatch: 'full', redirectTo: 'landing' }
+    ]
+  },
+  { path: '**', redirectTo: 'landing' }
+];

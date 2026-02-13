@@ -1,0 +1,30 @@
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+}
+
+.crumb {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3f51b5;
+  text-decoration: none;
+}
+
+.crumb:hover {
+  text-decoration: underline;
+}
+
+.current {
+  color: #333;
+  cursor: default;
+  text-decoration: none !important;
+}
+
+.sep {
+  font-size: 18px;
+  opacity: 0.55;
+}
