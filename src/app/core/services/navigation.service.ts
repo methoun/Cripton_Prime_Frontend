@@ -21,6 +21,9 @@ export class NavigationService {
   private readonly sidebarMenuSubject = new BehaviorSubject<MenuTreeNode[]>([]);
   readonly sidebarMenu$ = this.sidebarMenuSubject.asObservable();
 
+  private readonly sidebarLoadingSubject = new BehaviorSubject<boolean>(false);
+  readonly sidebarLoading$ = this.sidebarLoadingSubject.asObservable();
+
   private readonly activeModuleSubject = new BehaviorSubject<ActiveModule | null>(
     this.tokenStorage.getActiveModule()
   );
@@ -75,7 +78,7 @@ export class NavigationService {
 
   setActiveModule(module: ErpModule): void {
     const active: ActiveModule = {
-      moduleId: module.moduleId,
+      moduleId: String(module.moduleId), // ✅ string GUID always
       name: module.name,
       icon: module.icon ?? null,
       defaultRoute: module.defaultRoute ?? '/landing',
@@ -84,77 +87,103 @@ export class NavigationService {
     this.tokenStorage.setActiveModule(active);
     this.activeModuleSubject.next(active);
 
-    this.loadTree(active.moduleId);
+    // ✅ load tree (clears immediately + sets loading)
+    this.loadTree(active.moduleId, true);
   }
 
   clearActiveModule(): void {
     this.tokenStorage.removeActiveModule();
     this.activeModuleSubject.next(null);
+    this.sidebarLoadingSubject.next(false);
     this.sidebarMenuSubject.next([]);
   }
 
   // ✅ BACKWARD COMPATIBLE (AppShell/Other places)
   getNavigationTree(moduleId: string): Observable<MenuTreeNode[]> {
-    this.loadTree(moduleId);
+    this.loadTree(String(moduleId), true);
     return this.sidebarMenu$;
   }
 
-  private loadTree(moduleId: string): void {
-  const url = `${this.treeUrl}?moduleId=${encodeURIComponent(moduleId)}`;
+  // ✅ For breadcrumb module click: same module হলেও forced reload
+  reloadTreeForModule(moduleId: string): void {
+    this.loadTree(String(moduleId), true);
+  }
 
-  this.http
-    .get<ApiResult<any[]>>(url)
-    .pipe(
-      tap(res => console.log('TREE RESPONSE =>', res)),
-      map(res => {
-        if (!this.isSuccess(res)) return [];
+  // ✅ For breadcrumb module click (active module ব্যবহার করে)
+  reloadActiveModuleTree(): void {
+    const active = this.activeModuleSubject.value;
+    if (!active?.moduleId) return;
+    this.loadTree(String(active.moduleId), true);
+  }
 
-        const rows = this.getData<any[]>(res) ?? [];
-        if (!Array.isArray(rows)) return [];
+  private loadTree(moduleId: string, clearImmediately: boolean): void {
+    const mid = String(moduleId || '');
+    if (!mid) {
+      this.sidebarLoadingSubject.next(false);
+      this.sidebarMenuSubject.next([]);
+      return;
+    }
 
-        return rows.map((node: any) => {
-          // ✅ Accept many possible backend keys
-          const menuId = String(node.menuId ?? node.MenuId ?? node.id ?? node.Id ?? '');
-          const title = String(node.menuName ?? node.MenuName ?? node.title ?? node.Title ?? '');
-          const icon = (node.menuIcon ?? node.MenuIcon ?? node.icon ?? node.Icon ?? null);
-          const route = (node.menuRoute ?? node.MenuRoute ?? node.route ?? node.Route ?? null);
+    // ✅ IMMEDIATE UI FEEDBACK
+    this.sidebarLoadingSubject.next(true);
+    if (clearImmediately) {
+      this.sidebarMenuSubject.next([]);
+    }
 
-          const subMenusRaw =
-            node.subMenus ??
-            node.SubMenus ??
-            node.subMenuNodes ??
-            node.SubMenuNodes ??
-            node.children ??
-            node.Children ??
-            [];
+    const url = `${this.treeUrl}?moduleId=${encodeURIComponent(mid)}`;
 
-          const subs = Array.isArray(subMenusRaw) ? subMenusRaw : [];
+    this.http
+      .get<ApiResult<any[]>>(url)
+      .pipe(
+        tap(res => console.log('TREE RESPONSE =>', res)),
+        map(res => {
+          if (!this.isSuccess(res)) return [];
 
-          return {
-            menuId,
-            title,
-            icon,
-            route,
-            subMenus: subs.map((sm: any) => ({
-              subMenuId: String(sm.subMenuId ?? sm.SubMenuId ?? sm.id ?? sm.Id ?? ''),
-              title: String(sm.subMenuName ?? sm.SubMenuName ?? sm.title ?? sm.Title ?? ''),
-              route: String(sm.subMenuRoute ?? sm.SubMenuRoute ?? sm.route ?? sm.Route ?? ''),
-              icon: (sm.subMenuIcon ?? sm.SubMenuIcon ?? sm.icon ?? sm.Icon ?? null),
-            })),
-          } as MenuTreeNode;
-        });
-      }),
-      catchError(err => {
-        console.error('TREE LOAD ERROR =>', err);
-        return of([]);
-      })
-    )
-    .subscribe(tree => {
-      console.log('MAPPED TREE =>', tree);
-      this.sidebarMenuSubject.next(tree);
-    });
-}
+          const rows = this.getData<any[]>(res) ?? [];
+          if (!Array.isArray(rows)) return [];
 
+          return rows.map((node: any) => {
+            const menuId = String(node.menuId ?? node.MenuId ?? node.id ?? node.Id ?? '');
+            const title = String(node.menuName ?? node.MenuName ?? node.title ?? node.Title ?? '');
+            const icon = (node.menuIcon ?? node.MenuIcon ?? node.icon ?? node.Icon ?? null);
+            const route = (node.menuRoute ?? node.MenuRoute ?? node.route ?? node.Route ?? null);
+
+            const subMenusRaw =
+              node.subMenus ??
+              node.SubMenus ??
+              node.subMenuNodes ??
+              node.SubMenuNodes ??
+              node.children ??
+              node.Children ??
+              [];
+
+            const subs = Array.isArray(subMenusRaw) ? subMenusRaw : [];
+
+            return {
+              menuId,
+              title,
+              icon,
+              route,
+              subMenus: subs.map((sm: any) => ({
+                subMenuId: String(sm.subMenuId ?? sm.SubMenuId ?? sm.id ?? sm.Id ?? ''),
+                title: String(sm.subMenuName ?? sm.SubMenuName ?? sm.title ?? sm.Title ?? ''),
+                route: String(sm.subMenuRoute ?? sm.SubMenuRoute ?? sm.route ?? sm.Route ?? ''),
+                icon: (sm.subMenuIcon ?? sm.SubMenuIcon ?? sm.icon ?? sm.Icon ?? null),
+              })),
+            } as MenuTreeNode;
+          });
+        }),
+        catchError(err => {
+          console.error('TREE LOAD ERROR =>', err);
+          return of([]);
+        })
+      )
+      .subscribe(tree => {
+        console.log('MAPPED TREE =>', tree);
+        this.sidebarMenuSubject.next(tree);
+        this.sidebarLoadingSubject.next(false);
+      });
+  }
 
   private isSuccess(res: any): boolean {
     return (res?.success ?? res?.Success) === true;

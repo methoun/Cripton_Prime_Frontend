@@ -11,6 +11,8 @@ import { AdministrationUsersPageComponent } from './features/administration/page
 import { HrmDashboardPageComponent } from './features/hrm/pages/hrm-dashboard-page/hrm-dashboard-page.component';
 import { PrlDashboardPageComponent } from './features/prl/pages/prl-dashboard-page/prl-dashboard-page.component';
 
+import { NotFoundPageComponent } from './shared/pages/not-found-page/not-found-page.component';
+
 export const routes: Routes = [
   {
     path: 'login',
@@ -30,8 +32,13 @@ export const routes: Routes = [
       { path: 'hrm/dashboard', component: HrmDashboardPageComponent },
       { path: 'prl/dashboard', component: PrlDashboardPageComponent },
 
-      { path: '', pathMatch: 'full', redirectTo: 'landing' }
+      { path: '', pathMatch: 'full', redirectTo: 'landing' },
+
+      // ✅ child wildcard (unknown path under AppShell)
+      { path: '**', component: NotFoundPageComponent }
     ]
   },
+
+  // ✅ app-level wildcard (safety)
   { path: '**', redirectTo: 'landing' }
 ];

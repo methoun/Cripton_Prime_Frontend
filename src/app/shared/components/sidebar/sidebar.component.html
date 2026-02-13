@@ -1,5 +1,24 @@
 <div class="sidebar">
 
+  <!-- ✅ BRAND / COMPANY LOGO HEADER -->
+  <div class="sidebar-brand" (click)="goRoute('/landing')">
+    <img
+      class="brand-logo"
+      src="assets/company-logo.png"
+      alt="Company Logo"
+      (error)="onLogoError($event)"
+    />
+
+    <mat-icon class="brand-fallback-icon">apartment</mat-icon>
+
+    <div class="brand-text">
+      <div class="brand-name">CriptonERP</div>
+      <div class="brand-sub">Company</div>
+    </div>
+  </div>
+
+  <div class="brand-divider"></div>
+
   <!-- MODULE LIST -->
   <ng-container *ngIf="(activeModule$ | async) === null; else treeMode">
     <h3 class="title">Modules</h3>
@@ -23,48 +42,73 @@
   <!-- TREE MODE -->
   <ng-template #treeMode>
 
-    <button class="back-btn" (click)="clearModule()">
-      <mat-icon>arrow_back</mat-icon>
-      Modules
-    </button>
+    <div class="tree-top">
+      <button class="back-btn" (click)="clearModule()">
+        <mat-icon>arrow_back</mat-icon>
+        Modules
+      </button>
 
-    <input class="search"
-           [(ngModel)]="searchText"
-           placeholder="Search menu..." />
+      <input class="search"
+             [ngModel]="searchText"
+             (ngModelChange)="onSearchChange($event)"
+             placeholder="Search menu..." />
+    </div>
 
-    <mat-accordion multi="true">
-      <mat-expansion-panel *ngFor="let menu of (filteredMenus$ | async) ?? []">
+    <!-- ✅ Loading feedback -->
+    <div class="tree-loading" *ngIf="(loading$ | async) === true">
+      Loading menu...
+    </div>
 
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <span class="icon">
-              <i *ngIf="menu.icon && !isMaterialIcon(menu.icon)" [class]="menu.icon"></i>
-              <mat-icon *ngIf="menu.icon && isMaterialIcon(menu.icon)">{{ menu.icon }}</mat-icon>
-              <mat-icon *ngIf="!menu.icon">folder</mat-icon>
-            </span>
+    <ng-container *ngIf="(loading$ | async) !== true">
+      <mat-accordion multi="true" class="menu-accordion">
+        <mat-expansion-panel *ngFor="let menu of (filteredMenus$ | async) ?? []" class="menu-panel">
 
-            {{ menu.title }}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
+          <mat-expansion-panel-header class="menu-header">
+            <mat-panel-title>
+              <span class="icon">
+                <i *ngIf="menu.icon && !isMaterialIcon(menu.icon)" [class]="menu.icon"></i>
+                <mat-icon *ngIf="menu.icon && isMaterialIcon(menu.icon)">{{ menu.icon }}</mat-icon>
+                <mat-icon *ngIf="!menu.icon">folder</mat-icon>
+              </span>
 
-        <!-- menu.route clickable -->
-        <button class="submenu-item"
-                *ngIf="menu.route && (!menu.subMenus || menu.subMenus.length === 0)"
-                (click)="goRoute(menu.route)">
-          <mat-icon>chevron_right</mat-icon>
-          {{ menu.title }}
-        </button>
+              <span class="menu-title">{{ menu.title }}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
 
-        <!-- submenu list -->
-        <button class="submenu-item"
-                *ngFor="let sm of (menu.subMenus ?? [])"
-                (click)="goRoute(sm.route)">
-          <mat-icon>chevron_right</mat-icon>
-          {{ sm.title }}
-        </button>
+          <!-- menu.route clickable -->
+          <ng-container *ngIf="(currentUrl$ | async) as curUrl">
+            <button class="nav-item"
+                    *ngIf="menu.route && (!menu.subMenus || menu.subMenus.length === 0)"
+                    [class.active]="isActiveRoute(curUrl, menu.route)"
+                    (click)="goRoute(menu.route)">
+              <span class="nav-icon">
+                <mat-icon>chevron_right</mat-icon>
+              </span>
+              <span class="nav-text">{{ menu.title }}</span>
+            </button>
 
-      </mat-expansion-panel>
-    </mat-accordion>
+            <!-- submenu list -->
+            <button class="nav-item"
+                    *ngFor="let sm of (menu.subMenus ?? [])"
+                    [class.active]="isActiveRoute(curUrl, sm.route)"
+                    (click)="goRoute(sm.route)">
+              <span class="nav-icon">
+                <i *ngIf="sm.icon && !isMaterialIcon(sm.icon)" [class]="sm.icon"></i>
+                <mat-icon *ngIf="sm.icon && isMaterialIcon(sm.icon)">{{ sm.icon }}</mat-icon>
+                <mat-icon *ngIf="!sm.icon">chevron_right</mat-icon>
+              </span>
+              <span class="nav-text">{{ sm.title }}</span>
+            </button>
+          </ng-container>
+
+        </mat-expansion-panel>
+      </mat-accordion>
+
+      <!-- empty state -->
+      <div class="empty" *ngIf="((filteredMenus$ | async) ?? []).length === 0">
+        No menu found.
+      </div>
+    </ng-container>
 
   </ng-template>
 

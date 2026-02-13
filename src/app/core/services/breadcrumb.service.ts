@@ -36,20 +36,20 @@ export class BreadcrumbService {
           });
         }
 
-        // Menu > Page
+        // Menu > SubMenu
         const match = this.findMatch(tree || [], url);
 
         if (match?.menu) {
           crumbs.push({
             label: match.menu.title,
-            url: match.menu.route || undefined, // ✅ null নয়
+            url: match.menu.route || undefined,
           });
         }
 
         if (match?.subMenu) {
           crumbs.push({
             label: match.subMenu.title,
-            url: match.subMenu.route || undefined, // ✅ null নয়
+            url: match.subMenu.route || undefined,
           });
         }
 
@@ -58,20 +58,25 @@ export class BreadcrumbService {
     );
   }
 
-  private findMatch(tree: MenuTreeNode[], url: string): { menu?: MenuTreeNode; subMenu?: SubMenuNode } | null {
+  private findMatch(
+    tree: MenuTreeNode[],
+    url: string
+  ): { menu?: MenuTreeNode; subMenu?: SubMenuNode } | null {
     const current = (url || '').toLowerCase();
 
     for (const menu of tree) {
-      const menuRoute = (menu.route || '').toLowerCase();
-      if (menuRoute && current.startsWith(menuRoute)) {
-        return { menu };
-      }
-
+      // ✅ Prefer submenu match first (more specific)
       for (const sm of menu.subMenus || []) {
         const smRoute = (sm.route || '').toLowerCase();
         if (smRoute && current.startsWith(smRoute)) {
           return { menu, subMenu: sm };
         }
+      }
+
+      // then menu match
+      const menuRoute = (menu.route || '').toLowerCase();
+      if (menuRoute && current.startsWith(menuRoute)) {
+        return { menu };
       }
     }
 

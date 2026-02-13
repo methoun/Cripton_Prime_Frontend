@@ -1,7 +1,15 @@
-<nav class="crumbs" aria-label="breadcrumb">
-  <ng-container *ngFor="let item of items; let last = last">
-    <a *ngIf="item.url && !last" [routerLink]="item.url" class="crumb">{{ item.label }}</a>
-    <span *ngIf="!item.url || last" class="crumb current">{{ item.label }}</span>
-    <mat-icon *ngIf="!last" class="sep">chevron_right</mat-icon>
+<nav class="breadcrumb" *ngIf="(breadcrumbs$ | async) as crumbs">
+  <ng-container *ngIf="(activeModule$ | async) as active">
+    <ng-container *ngFor="let c of crumbs; let i = index; trackBy: trackByIndex">
+      <a
+        href="{{ c.url || '#' }}"
+        (click)="onCrumbClick(c, i, active, $event)"
+        class="crumb"
+      >
+        {{ c.label }}
+      </a>
+
+      <span class="sep" *ngIf="i < crumbs.length - 1"> &gt; </span>
+    </ng-container>
   </ng-container>
 </nav>

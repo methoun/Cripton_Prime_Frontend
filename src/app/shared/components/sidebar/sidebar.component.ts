@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { Observable, combineLatest, map, startWith } from 'rxjs';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { BehaviorSubject, Observable, combineLatest, filter, map, startWith } from 'rxjs';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -27,26 +27,34 @@ import { ActiveModule } from '../../../core/models/active-module.model';
   ],
 })
 export class SidebarComponent {
-
   searchText = '';
 
-  // Always Observable
+  private readonly searchTextSubject = new BehaviorSubject<string>('');
+  readonly searchText$ = this.searchTextSubject.asObservable();
+
   modules$: Observable<ErpModule[]> = this.nav.getModules();
   activeModule$: Observable<ActiveModule | null> = this.nav.activeModule$;
   menuTree$: Observable<MenuTreeNode[]> = this.nav.sidebarMenu$;
+  loading$: Observable<boolean> = this.nav.sidebarLoading$;
 
-  // filteredMenus observable (no function call in html)
+  // ✅ active route highlight
+  currentUrl$: Observable<string> = this.router.events.pipe(
+    filter(e => e instanceof NavigationEnd),
+    map(() => this.router.url),
+    startWith(this.router.url)
+  );
+
   filteredMenus$: Observable<MenuTreeNode[]> = combineLatest([
     this.menuTree$,
     this.activeModule$,
-    this.searchTextChange$()
+    this.searchText$.pipe(startWith(''))
   ]).pipe(
     map(([menus, active, search]) => {
       if (!active) return [];
       const term = (search ?? '').toLowerCase().trim();
       if (!term) return menus;
 
-      return menus.filter(m =>
+      return (menus || []).filter(m =>
         (m.title ?? '').toLowerCase().includes(term) ||
         (m.subMenus ?? []).some(sm => (sm.title ?? '').toLowerCase().includes(term))
       );
@@ -58,16 +66,9 @@ export class SidebarComponent {
     private router: Router
   ) {}
 
-  private searchTextChange$(): Observable<string> {
-    return new Observable<string>(observer => {
-      observer.next(this.searchText);
-
-      const interval = setInterval(() => {
-        observer.next(this.searchText);
-      }, 200);
-
-      return () => clearInterval(interval);
-    }).pipe(startWith(''));
+  onSearchChange(value: string) {
+    this.searchText = value ?? '';
+    this.searchTextSubject.next(this.searchText);
   }
 
   selectModule(m: ErpModule) {
@@ -85,8 +86,25 @@ export class SidebarComponent {
     this.router.navigateByUrl(route);
   }
 
+  // ✅ Angular template-safe: hide image if not found
+  onLogoError(evt: Event) {
+    const img = evt.target as HTMLImageElement | null;
+    if (img) img.style.display = 'none';
+  }
+
+  // ✅ DB icon class support:
+  // - "nav-icon fas fa-file" => NOT material => <i class="..."></i>
+  // - "settings" => material => <mat-icon>settings</mat-icon>
   isMaterialIcon(icon: string | null | undefined): boolean {
     if (!icon) return false;
     return !icon.includes(' ') && !icon.includes('fa') && !icon.includes('fas');
+  }
+
+  // ✅ Active match helper (case-insensitive safe)
+  isActiveRoute(currentUrl: string, route: string | null | undefined): boolean {
+    if (!route) return false;
+    const cur = (currentUrl || '').toLowerCase();
+    const r = (route || '').toLowerCase();
+    return cur === r || cur.startsWith(r + '/');
   }
 }
