@@ -26,6 +26,12 @@ export const routes: Routes = [
     children: [
       { path: 'landing', component: LandingPageComponent },
 
+      // ✅ DB module routes (home/dashboard)
+      { path: 'admin', component: AdministrationDashboardPageComponent },
+      { path: 'hrm', component: HrmDashboardPageComponent },
+      { path: 'prl', component: PrlDashboardPageComponent },
+
+      // existing routes (keep)
       { path: 'administration/dashboard', component: AdministrationDashboardPageComponent },
       { path: 'administration/users', component: AdministrationUsersPageComponent },
 
@@ -34,11 +40,10 @@ export const routes: Routes = [
 
       { path: '', pathMatch: 'full', redirectTo: 'landing' },
 
-      // ✅ child wildcard (unknown path under AppShell)
+      // ✅ child wildcard
       { path: '**', component: NotFoundPageComponent }
     ]
   },
 
-  // ✅ app-level wildcard (safety)
   { path: '**', redirectTo: 'landing' }
 ];

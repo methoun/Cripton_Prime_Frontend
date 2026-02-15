@@ -1,13 +1,95 @@
-<ng-container *ngIf="modules$ | async as modules">
-  <mat-card class="module-card" *ngFor="let m of modules">
-    <div class="row">
-      <mat-icon>{{ m.icon || 'apps' }}</mat-icon>
-      <div class="name">{{ m.name }}</div>
-    </div>
+<div class="landing">
 
-    <button mat-raised-button color="primary" (click)="openModule(m)">
-      Open
-      <mat-icon>arrow_forward</mat-icon>
-    </button>
-  </mat-card>
-</ng-container>
+  <!-- LEFT: Modules -->
+  <div class="left">
+    <!-- <div class="section-title">Modules</div> -->
+
+    <div class="modules-grid">
+      <!-- <ng-container *ngIf="modules$ | async as modules">
+        <mat-card class="module-card" *ngFor="let m of modules">
+          <div class="row">
+            <mat-icon class="micon">{{ m.icon || 'apps' }}</mat-icon>
+            <div class="name">{{ m.name }}</div>
+          </div>
+
+          <button mat-raised-button color="primary" (click)="openModule(m)">
+            Open
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </mat-card>
+      </ng-container> -->
+    </div>
+  </div>
+
+  <!-- RIGHT: Widgets -->
+  <div class="right">
+
+    <mat-card class="widget-card widget-notice">
+      <div class="widget-title">Notice</div>
+      <mat-divider></mat-divider>
+
+      <div class="widget-row">
+        <div class="label">Unread</div>
+        <div class="value">{{ unreadNotices }}</div>
+      </div>
+
+      <div class="widget-action">
+        <button mat-button color="primary" (click)="goToNotices()">Show Details</button>
+      </div>
+    </mat-card>
+
+    <mat-card class="widget-card widget-approval">
+      <div class="widget-title">Approval</div>
+      <mat-divider></mat-divider>
+
+      <div class="widget-row">
+        <div class="label">Pending</div>
+        <div class="value">{{ pendingApprovals }}</div>
+      </div>
+
+      <div class="widget-action">
+        <button mat-button color="primary" (click)="goToApprovals()">View</button>
+      </div>
+    </mat-card>
+
+    <mat-card class="widget-card widget-attendance">
+      <div class="widget-title">My Attendance</div>
+      <mat-divider></mat-divider>
+
+      <div class="widget-row">
+        <div class="label">Total Days</div>
+        <div class="value">{{ totalDays }}</div>
+      </div>
+
+      <div class="widget-row">
+        <div class="label">Presents</div>
+        <div class="value">{{ presents }}</div>
+      </div>
+
+      <div class="widget-action">
+        <button mat-button color="primary" (click)="goToAttendanceDetails()">Show Details</button>
+      </div>
+    </mat-card>
+
+    <mat-card class="widget-card widget-leave">
+      <div class="widget-title">My Leave Status</div>
+      <mat-divider></mat-divider>
+
+      <div class="widget-row">
+        <div class="label">Enjoyed</div>
+        <div class="value">{{ leaveEnjoyed }}</div>
+      </div>
+
+      <div class="widget-row">
+        <div class="label">Left</div>
+        <div class="value">{{ leaveLeft }}</div>
+      </div>
+
+      <div class="widget-action">
+        <button mat-button color="primary" (click)="applyLeave()">Apply Now</button>
+      </div>
+    </mat-card>
+
+  </div>
+
+</div>

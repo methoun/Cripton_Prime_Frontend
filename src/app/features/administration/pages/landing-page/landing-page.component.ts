@@ -1,12 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AsyncPipe, NgFor, NgIf } from '@angular/common';
+import { Observable } from 'rxjs';
 
 import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-
-import { Observable } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
 
 import { NavigationService } from '../../../../core/services/navigation.service';
 import { ErpModule } from '../../../../core/models/navigation.models';
@@ -14,22 +14,49 @@ import { ErpModule } from '../../../../core/models/navigation.models';
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [NgIf, NgFor, AsyncPipe, MatCardModule, MatButtonModule, MatIconModule],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDividerModule,
+  ],
   templateUrl: './landing-page.component.html',
-  styleUrls: ['./landing-page.component.scss']
+  styleUrls: ['./landing-page.component.scss'],
 })
 export class LandingPageComponent {
-  private readonly nav = inject(NavigationService);
-  private readonly router = inject(Router);
+  modules$: Observable<ErpModule[]> = this.nav.getModules();
 
-  // ✅ template uses this
-  public readonly modules$: Observable<ErpModule[]> = this.nav.getModules();
+  // ✅ Demo widgets data (পরবর্তীতে API থেকে আনবেন)
+  unreadNotices = 3;
+  pendingApprovals = 2;
+  totalDays = 26;
+  presents = 22;
+  leaveEnjoyed = 5;
+  leaveLeft = 7;
 
-  // ✅ template uses this
-  public openModule(m: ErpModule): void {
+  constructor(private nav: NavigationService, private router: Router) {}
+
+  openModule(m: ErpModule) {
     this.nav.setActiveModule(m);
+    this.router.navigateByUrl(m.defaultRoute || '/landing');
+  }
 
-    const url = m.defaultRoute ?? '/landing';
-    this.router.navigateByUrl(url);
+  // ✅ Widget actions (এখন placeholder route)
+  goToNotices() {
+    // future route: /hrm/notices etc.
+    this.router.navigateByUrl('/landing');
+  }
+
+  goToApprovals() {
+    this.router.navigateByUrl('/landing');
+  }
+
+  goToAttendanceDetails() {
+    this.router.navigateByUrl('/landing');
+  }
+
+  applyLeave() {
+    this.router.navigateByUrl('/landing');
   }
 }

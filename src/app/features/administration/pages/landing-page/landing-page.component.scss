@@ -1,40 +1,139 @@
-.landing .header {
-  margin-bottom: 14px;
+.landing {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 16px;
+  padding: 14px;
+  box-sizing: border-box;
 }
 
-.title {
-  font-size: 20px;
+/* Responsive */
+@media (max-width: 1100px) {
+  .landing {
+    grid-template-columns: 1fr;
+  }
+
+  .right {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .right {
+    grid-template-columns: 1fr;
+  }
+}
+
+.section-title {
   font-weight: 800;
+  font-size: 16px;
+  margin-bottom: 10px;
 }
 
-.sub {
-  font-size: 13px;
-  opacity: .7;
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 1200px) {
+  .modules-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .modules-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .module-card {
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 14px;
-  display: grid;
-  gap: 10px;
-  box-shadow: 0 8px 18px rgba(0,0,0,.06);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
 }
 
-.icon mat-icon {
-  width: 40px;
-  height: 40px;
-  font-size: 40px;
-  opacity: .85;
+.module-card .row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.micon {
+  width: 34px;
+  height: 34px;
+  font-size: 30px;
 }
 
 .name {
-  font-weight: 700;
-  font-size: 16px;
+  font-weight: 800;
+  font-size: 15px;
 }
 
-.actions button {
-  width: 100%;
+/* Widgets */
+.right {
   display: flex;
-  justify-content: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.widget-card {
+  border-radius: 14px;
+  padding: 12px 12px 10px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+}
+
+/* ✅ Different colors per card */
+.widget-notice {
+  background: #E9762B; 
+  color: #f5efff;
+}
+
+.widget-approval {
+  background: #4B9DA9; 
+  color: #f5efff;
+}
+
+.widget-attendance {
+  background: #FDB5CE; 
+}
+
+.widget-leave {
+  background: #FFD41D; 
+}
+
+.widget-title {
+  font-weight: 800;
+  font-size: 14px;
+  padding: 4px 2px 8px;
+}
+
+.widget-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 2px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.widget-row:last-of-type {
+  border-bottom: none;
+}
+
+.label {
+  opacity: 0.75;
+}
+
+.value {
+  font-weight: 800;
+}
+
+.widget-action {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
 }

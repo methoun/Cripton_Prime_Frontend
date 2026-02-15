@@ -1,6 +1,8 @@
 export interface LoginRequest {
-  company: string;
-  office: string;
+  companyname: string;
+  officename: string;
+  companyId: string;
+  officeId: string;
   username: string;
   password: string;
 }

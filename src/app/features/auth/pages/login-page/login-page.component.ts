@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
-import { NgIf } from '@angular/common';
+import { NgIf, NgFor } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import { finalize, switchMap, catchError, of } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { AuthService } from '../../../../core/services/auth.service';
@@ -20,13 +21,15 @@ import { NavigationService } from '../../../../core/services/navigation.service'
   standalone: true,
   imports: [
     NgIf,
+    NgFor,
     ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
     MatButtonModule,
-    MatSelectModule
+    MatSelectModule,
+    MatSnackBarModule
   ],
   templateUrl: './login-page.component.html',
   styleUrl: './login-page.component.scss',
@@ -42,9 +45,20 @@ export class LoginPageComponent {
   public hidePassword = true;
   public busy = false;
 
+  // ✅ Dummy data (later API)
+  public readonly companies = [
+    { id: '32434cc64a5f7-d939-4725-ac7c-0c483d30d34d', name: 'CriptonPrime Limited' },
+    { id: '4d4c8c39-5870-431a-890c-6222363166a4', name: 'Demo Group' }
+  ];
+
+  public readonly offices = [
+    { id: '02fe6dfb-32df-4358-a6ff-91c0b43dd6e3', name: 'Head Office' },
+    { id: 'c2102c8b-f08a-4c49-9695-07a66da2f1f4', name: 'Branch Office' }
+  ];
+
   public readonly form = this.fb.nonNullable.group({
-    company: ['CriptonPrime Limited', [Validators.required]],
-    office: ['Head Office', [Validators.required]],
+    companyId: [this.companies[0].id, [Validators.required]],
+    officeId: [this.offices[0].id, [Validators.required]],
     username: ['', [Validators.required]],
     password: ['', [Validators.required, Validators.minLength(4)]]
   });
@@ -58,28 +72,34 @@ export class LoginPageComponent {
 
     this.busy = true;
 
-    this.auth.login(this.form.getRawValue()).pipe(
-      finalize(() => {
-        this.busy = false;
-      })
+    const v = this.form.getRawValue();
+
+    // ✅ Map to your existing LoginRequest shape (company/office string)
+    const payload = {
+      company: this.companies.find(x => x.id === v.companyId)?.name ?? '',
+      office: this.offices.find(x => x.id === v.officeId)?.name ?? '',
+      username: v.username,
+      password: v.password
+    };
+
+    this.auth.login(payload).pipe(
+      switchMap(() =>
+        this.navigation.getModules().pipe(
+          catchError(() => of(null))
+        )
+      ),
+      finalize(() => (this.busy = false))
     ).subscribe({
-      next: () => {
-        this.navigation.getModules().subscribe({
-          next: () => {
-            this.router.navigateByUrl('/landing');
-          },
-          error: () => {
-            this.router.navigateByUrl('/landing');
-          }
-        });
-      },
-      error: () => {
-        this.snackBar.open('Login failed. Please check credentials.', 'Close', { duration: 3000 });
-      }
+      next: () => this.router.navigateByUrl('/landing'),
+      error: () => this.snackBar.open('Login failed. Please check credentials.', 'Close', { duration: 3000 })
     });
   }
 
   public togglePassword(): void {
     this.hidePassword = !this.hidePassword;
+  }
+
+  public onForgotPassword(): void {
+    this.snackBar.open('Forgot password is not implemented yet.', 'Close', { duration: 2500 });
   }
 }

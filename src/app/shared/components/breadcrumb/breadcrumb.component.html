@@ -1,15 +1,30 @@
-<nav class="breadcrumb" *ngIf="(breadcrumbs$ | async) as crumbs">
+<nav class="bc" *ngIf="(breadcrumbs$ | async) as crumbs">
   <ng-container *ngIf="(activeModule$ | async) as active">
-    <ng-container *ngFor="let c of crumbs; let i = index; trackBy: trackByIndex">
-      <a
-        href="{{ c.url || '#' }}"
-        (click)="onCrumbClick(c, i, active, $event)"
-        class="crumb"
-      >
-        {{ c.label }}
-      </a>
+    <div class="bc-card">
+      <mat-icon class="bc-home-icon">home</mat-icon>
 
-      <span class="sep" *ngIf="i < crumbs.length - 1"> &gt; </span>
-    </ng-container>
+      <ol class="bc-list" aria-label="Breadcrumb">
+        <li class="bc-item" *ngFor="let c of crumbs; let i = index; trackBy: trackByIndex">
+
+          <!-- clickable crumb (not last) -->
+          <a
+            *ngIf="i < crumbs.length - 1"
+            class="bc-link"
+            href="{{ c.url || '#' }}"
+            (click)="onCrumbClick(c, i, active, $event)"
+          >
+            <span class="bc-text">{{ c.label }}</span>
+          </a>
+
+          <!-- last crumb (active) -->
+          <span *ngIf="i === crumbs.length - 1" class="bc-current">
+            {{ c.label }}
+          </span>
+
+          <!-- separator -->
+          <mat-icon class="bc-sep" *ngIf="i < crumbs.length - 1">chevron_right</mat-icon>
+        </li>
+      </ol>
+    </div>
   </ng-container>
 </nav>

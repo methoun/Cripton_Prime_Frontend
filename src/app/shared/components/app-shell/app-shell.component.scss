@@ -1,33 +1,229 @@
+/* ✅ container height fix => sidebar vanish হবে না */
 .shell {
   height: 100vh;
+  width: 100%;
 }
 
 .shell-sidenav {
-  width: 260px;
-  border-right: 1px solid #e5e5e5;
+  width: 280px;
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .shell-content {
   height: 100%;
-}
-
-.shell-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.brand {
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.spacer {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .shell-body {
-  height: calc(100vh - 64px);
+  flex: 1;
   overflow: auto;
-  background: #f6f7fb;
+  padding: 14px;
+  background: #f5f6fa;
+}
+
+/* ================== TOPBAR (like your screenshot) ================== */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 3000;
+
+  background: #fff !important;
+  color: #111 !important;
+
+  height: 54px;
+  padding: 0 14px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  border-bottom: 1px solid rgba(0, 0, 0, 0.10);
+}
+
+/* LEFT */
+.tb-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 240px;
+}
+
+.tb-ic {
+  width: 36px;
+  height: 36px;
+  color: #111 !important;
+}
+
+.tb-brand {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+  cursor: pointer;
+}
+
+.tb-title {
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.tb-sub {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+/* SEARCH */
+.tb-search {
+  width: 320px;
+  max-width: 45vw;
+  display: flex;
+  align-items: center;
+}
+
+.tb-search-field {
+  width: 100%;
+}
+
+/* compact field */
+:host ::ng-deep .tb-search-field .mat-mdc-text-field-wrapper {
+  height: 34px;
+  background: #fff;
+}
+
+:host ::ng-deep .tb-search-field .mat-mdc-form-field-infix {
+  min-height: 34px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+
+:host ::ng-deep .tb-search-field .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+/* outline subtle gray */
+:host ::ng-deep .tb-search-field .mdc-notched-outline__leading,
+:host ::ng-deep .tb-search-field .mdc-notched-outline__notch,
+:host ::ng-deep .tb-search-field .mdc-notched-outline__trailing {
+  border-color: rgba(0, 0, 0, 0.18) !important;
+}
+
+/* spacer */
+.tb-spacer {
+  flex: 1;
+}
+
+/* RIGHT */
+.tb-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* date chip */
+.tb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 10px;
+
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.chip-ic {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  opacity: 0.8;
+}
+
+.chip-text {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+/* user dropdown chip */
+.tb-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 12px;
+
+  background: rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+}
+
+.tb-user:hover {
+  background: rgba(0, 0, 0, 0.10);
+}
+
+.tb-user-img {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.tb-user-txt {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+  max-width: 200px;
+  min-width: 0;
+}
+
+.u1 {
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.u2 {
+  font-size: 11px;
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.u-chev {
+  opacity: 0.75;
+}
+
+/* ================== MENU DROPDOWN (like screenshot card) ================== */
+:host ::ng-deep .menu-card.mat-mdc-menu-panel {
+  border-radius: 14px !important;
+  padding: 6px !important;
+  min-width: 220px !important;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14) !important;
+}
+
+:host ::ng-deep .menu-card .mat-mdc-menu-content {
+  padding: 6px !important;
+}
+
+:host ::ng-deep .menu-card .mat-mdc-menu-item {
+  border-radius: 10px !important;
+  margin: 2px 0 !important;
+  min-height: 42px !important;
+}
+
+:host ::ng-deep .menu-card .mat-mdc-menu-item:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+.shell-sidenav {
+  width: 280px;
+  transition: width 180ms ease;
+}
+
+.shell-sidenav.is-collapsed {
+  width: 72px; /* ✅ icon-only width */
 }

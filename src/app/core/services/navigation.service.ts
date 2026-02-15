@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, filter, map, of, take, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResult } from '../models/api-result.model';
@@ -44,6 +44,30 @@ export class NavigationService {
     return this.modules$;
   }
 
+  /**
+   * ✅ Optional helper for routes like /module/:moduleId
+   * Finds module by id, sets active module and loads tree.
+   */
+  setActiveModuleById(moduleId: string): Observable<ActiveModule | null> {
+    const mid = String(moduleId || '').trim();
+    if (!mid) return of(null);
+
+    if (!this.modulesLoaded) {
+      this.loadModules();
+    }
+
+    return this.modules$.pipe(
+      filter((mods) => Array.isArray(mods) && mods.length > 0),
+      take(1),
+      map((mods) => (mods || []).find((m) => String(m.moduleId) === mid) ?? null),
+      map((mod) => {
+        if (!mod) return null;
+        this.setActiveModule(mod);
+        return this.activeModuleSubject.value;
+      })
+    );
+  }
+
   // ✅ Only once load
   loadModules(): void {
     if (this.modulesLoaded) return;
@@ -57,13 +81,30 @@ export class NavigationService {
           if (!this.isSuccess(res)) return [];
 
           const list = this.getData<any[]>(res) ?? [];
+          if (!Array.isArray(list)) return [];
 
-          return list.map((m: any) => ({
-            moduleId: String(m.moduleId ?? m.ModuleId ?? ''),
-            name: String(m.moduleName ?? m.ModuleName ?? m.name ?? m.Name ?? ''),
-            icon: (m.moduleIcon ?? m.ModuleIcon ?? m.icon ?? m.Icon ?? null),
-            defaultRoute: ((m.defaultRoute ?? m.DefaultRoute ?? '/landing').trim() || '/landing'),
-          })) as ErpModule[];
+          return list.map((m: any) => {
+            // ✅ support many possible backend keys
+            const rawDefaultRoute =
+              m.defaultRoute ??
+              m.DefaultRoute ??
+              m.moduleRoute ??
+              m.ModuleRoute ??
+              m.homeRoute ??
+              m.HomeRoute ??
+              m.indexRoute ??
+              m.IndexRoute ??
+              m.route ??
+              m.Route ??
+              '/landing';
+
+            return {
+              moduleId: String(m.moduleId ?? m.ModuleId ?? ''),
+              name: String(m.moduleName ?? m.ModuleName ?? m.name ?? m.Name ?? ''),
+              icon: (m.moduleIcon ?? m.ModuleIcon ?? m.icon ?? m.Icon ?? null),
+              defaultRoute: this.normalizeRoute(String(rawDefaultRoute ?? '')),
+            } as ErpModule;
+          });
         }),
         catchError(err => {
           console.error('LOAD MODULES ERROR =>', err);
@@ -81,7 +122,7 @@ export class NavigationService {
       moduleId: String(module.moduleId), // ✅ string GUID always
       name: module.name,
       icon: module.icon ?? null,
-      defaultRoute: module.defaultRoute ?? '/landing',
+      defaultRoute: this.normalizeRoute(String(module.defaultRoute ?? '/landing')),
     };
 
     this.tokenStorage.setActiveModule(active);
@@ -146,7 +187,9 @@ export class NavigationService {
             const menuId = String(node.menuId ?? node.MenuId ?? node.id ?? node.Id ?? '');
             const title = String(node.menuName ?? node.MenuName ?? node.title ?? node.Title ?? '');
             const icon = (node.menuIcon ?? node.MenuIcon ?? node.icon ?? node.Icon ?? null);
-            const route = (node.menuRoute ?? node.MenuRoute ?? node.route ?? node.Route ?? null);
+
+            const rawMenuRoute = (node.menuRoute ?? node.MenuRoute ?? node.route ?? node.Route ?? null);
+            const route = rawMenuRoute ? this.normalizeRoute(String(rawMenuRoute)) : null;
 
             const subMenusRaw =
               node.subMenus ??
@@ -164,12 +207,15 @@ export class NavigationService {
               title,
               icon,
               route,
-              subMenus: subs.map((sm: any) => ({
-                subMenuId: String(sm.subMenuId ?? sm.SubMenuId ?? sm.id ?? sm.Id ?? ''),
-                title: String(sm.subMenuName ?? sm.SubMenuName ?? sm.title ?? sm.Title ?? ''),
-                route: String(sm.subMenuRoute ?? sm.SubMenuRoute ?? sm.route ?? sm.Route ?? ''),
-                icon: (sm.subMenuIcon ?? sm.SubMenuIcon ?? sm.icon ?? sm.Icon ?? null),
-              })),
+              subMenus: subs.map((sm: any) => {
+                const rawSmRoute = (sm.subMenuRoute ?? sm.SubMenuRoute ?? sm.route ?? sm.Route ?? '');
+                return {
+                  subMenuId: String(sm.subMenuId ?? sm.SubMenuId ?? sm.id ?? sm.Id ?? ''),
+                  title: String(sm.subMenuName ?? sm.SubMenuName ?? sm.title ?? sm.Title ?? ''),
+                  route: this.normalizeRoute(String(rawSmRoute ?? '')),
+                  icon: (sm.subMenuIcon ?? sm.SubMenuIcon ?? sm.icon ?? sm.Icon ?? null),
+                };
+              }),
             } as MenuTreeNode;
           });
         }),
@@ -183,6 +229,18 @@ export class NavigationService {
         this.sidebarMenuSubject.next(tree);
         this.sidebarLoadingSubject.next(false);
       });
+  }
+
+  // ✅ ensure route is always like "/administration/dashboard"
+  private normalizeRoute(route: string): string {
+    const r = (route ?? '').trim();
+    if (!r) return '/landing';
+
+    // allow external absolute URL if ever needed
+    if (r.startsWith('http://') || r.startsWith('https://')) return r;
+
+    // ensure leading slash
+    return r.startsWith('/') ? r : `/${r}`;
   }
 
   private isSuccess(res: any): boolean {
