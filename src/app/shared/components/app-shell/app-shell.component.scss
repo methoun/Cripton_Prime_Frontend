@@ -1,4 +1,3 @@
-/* ✅ container height fix => sidebar vanish হবে না */
 .shell {
   height: 100vh;
   width: 100%;
@@ -7,27 +6,31 @@
 .shell-sidenav {
   width: 280px;
   border-right: 1px solid rgba(0, 0, 0, 0.06);
+  transition: width 180ms ease;
+  background: #fff;
+}
+
+.shell-sidenav.is-collapsed {
+  width: 72px;
 }
 
 .shell-content {
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.shell-body {
-  flex: 1;
-  overflow: auto;
-  padding: 14px;
   background: #f5f6fa;
 }
 
-/* ================== TOPBAR (like your screenshot) ================== */
-.topbar {
+/* ✅ header (topbar + breadcrumb) sticky as ONE unit */
+.header-wrap {
   position: sticky;
   top: 0;
   z-index: 3000;
+  background: #fff;
+}
 
+/* TOPBAR */
+.topbar {
   background: #fff !important;
   color: #111 !important;
 
@@ -39,6 +42,42 @@
   gap: 12px;
 
   border-bottom: 1px solid rgba(0, 0, 0, 0.10);
+  margin: 0 !important;
+}
+
+/* toolbar internal */
+:host ::ng-deep .topbar.mat-toolbar,
+:host ::ng-deep .topbar.mat-mdc-toolbar {
+  margin: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* ✅ breadcrumb bar directly under header - NO GAP */
+.breadcrumb-bar {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* ✅ make breadcrumb full width, no extra padding from component */
+:host ::ng-deep .breadcrumb-in-header {
+  display: block;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* ✅ BODY scroll area */
+.shell-body {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+  margin: 0;
+  background: #f5f6fa;
+}
+
+.page-wrap {
+  padding: 12px 14px 14px;
 }
 
 /* LEFT */
@@ -49,12 +88,51 @@
   min-width: 240px;
 }
 
+/* ✅ FIX: icon button hit-area + center pointer */
 .tb-ic {
   width: 36px;
   height: 36px;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border-radius: 999px !important;
+  cursor: pointer !important;
+
   color: #111 !important;
 }
 
+/* ✅ ensure the real clickable element is centered */
+:host ::ng-deep button.tb-ic.mat-mdc-icon-button,
+:host ::ng-deep button.tb-ic.mat-icon-button {
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  line-height: 36px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* ✅ fix mat-icon alignment inside */
+:host ::ng-deep button.tb-ic .mat-icon,
+:host ::ng-deep button.tb-ic mat-icon {
+  width: 20px !important;
+  height: 20px !important;
+  font-size: 20px !important;
+  line-height: 20px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* ✅ badge sometimes shifts hit-area visually; keep it centered */
+:host ::ng-deep button.tb-ic .mat-badge-content {
+  transform: translate(0, 0) !important;
+}
+
+/* brand */
 .tb-brand {
   display: flex;
   flex-direction: column;
@@ -84,7 +162,6 @@
   width: 100%;
 }
 
-/* compact field */
 :host ::ng-deep .tb-search-field .mat-mdc-text-field-wrapper {
   height: 34px;
   background: #fff;
@@ -100,14 +177,12 @@
   display: none;
 }
 
-/* outline subtle gray */
 :host ::ng-deep .tb-search-field .mdc-notched-outline__leading,
 :host ::ng-deep .tb-search-field .mdc-notched-outline__notch,
 :host ::ng-deep .tb-search-field .mdc-notched-outline__trailing {
   border-color: rgba(0, 0, 0, 0.18) !important;
 }
 
-/* spacer */
 .tb-spacer {
   flex: 1;
 }
@@ -119,7 +194,6 @@
   gap: 10px;
 }
 
-/* date chip */
 .tb-chip {
   display: inline-flex;
   align-items: center;
@@ -145,7 +219,6 @@
   opacity: 0.9;
 }
 
-/* user dropdown chip */
 .tb-user {
   display: inline-flex;
   align-items: center;
@@ -198,9 +271,9 @@
   opacity: 0.75;
 }
 
-/* ================== MENU DROPDOWN (like screenshot card) ================== */
+/* MENU DROPDOWN */
 :host ::ng-deep .menu-card.mat-mdc-menu-panel {
-  border-radius: 14px !important;
+  border-radius: 0 !important;
   padding: 6px !important;
   min-width: 220px !important;
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14) !important;
@@ -211,19 +284,11 @@
 }
 
 :host ::ng-deep .menu-card .mat-mdc-menu-item {
-  border-radius: 10px !important;
+  border-radius: 6px !important;
   margin: 2px 0 !important;
   min-height: 42px !important;
 }
 
 :host ::ng-deep .menu-card .mat-mdc-menu-item:hover {
   background: rgba(0, 0, 0, 0.05) !important;
-}
-.shell-sidenav {
-  width: 280px;
-  transition: width 180ms ease;
-}
-
-.shell-sidenav.is-collapsed {
-  width: 72px; /* ✅ icon-only width */
 }

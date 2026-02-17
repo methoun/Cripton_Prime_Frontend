@@ -72,6 +72,7 @@ export class AppShellComponent implements OnInit {
   /* ✅ Header search */
   public headerSearch = '';
   public sidebarCollapsed = false;
+
   /* ✅ Date text in header */
   public todayText = new Intl.DateTimeFormat(undefined, {
     weekday: 'short',
@@ -79,6 +80,9 @@ export class AppShellComponent implements OnInit {
     day: '2-digit',
     year: 'numeric',
   }).format(new Date());
+
+  /* ✅ USER MENU EXTRA (for screenshot-style dropdown) */
+  public userMenuIp = '0.0.0.0';
 
   constructor(
     private router: Router,
@@ -90,10 +94,15 @@ export class AppShellComponent implements OnInit {
 
   ngOnInit(): void {
     // ✅ App load এ backend থেকে profile/context আনুন
-    this.userApi.getMe().subscribe(ctx => {
+    this.userApi.getMe().subscribe((ctx) => {
       if (ctx) {
         if (!ctx.userImageUrl) ctx.userImageUrl = this.userImageUrlFallback;
         this.userContext.setContext(ctx);
+
+        // ✅ if backend returns ip field, map it here (optional)
+        const anyCtx = ctx as any;
+        if (anyCtx?.ip) this.userMenuIp = String(anyCtx.ip);
+        if (anyCtx?.clientIp) this.userMenuIp = String(anyCtx.clientIp);
       }
     });
 
@@ -103,6 +112,10 @@ export class AppShellComponent implements OnInit {
     if (active?.moduleId) {
       this.nav.reloadTreeForModule(active.moduleId);
     }
+
+    // ✅ fallback: if you stored ip somewhere
+    const ipLocal = localStorage.getItem('client_ip');
+    if (ipLocal) this.userMenuIp = ipLocal;
   }
 
   toggleSidenav(): void {
@@ -122,6 +135,11 @@ export class AppShellComponent implements OnInit {
     this.router.navigateByUrl('/landing'); // later: /change-password
   }
 
+  /* ✅ Help route (dropdown) */
+  goToHelp(): void {
+    this.router.navigateByUrl('/landing'); // later: /help
+  }
+
   onLogout(): void {
     this.tokens.clearAll();
     this.nav.clearActiveModule();
@@ -130,12 +148,12 @@ export class AppShellComponent implements OnInit {
   }
 
   public toggleSidebarMode(): void {
-  this.sidebarCollapsed = !this.sidebarCollapsed;
+    this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
   public onHeaderSearch(v: string): void {
-  this.headerSearch = (v ?? '').toLowerCase().trim();
- }
+    this.headerSearch = (v ?? '').toLowerCase().trim();
+  }
 
   formatLoginTime(iso: string | null | undefined): string {
     if (!iso) return '';

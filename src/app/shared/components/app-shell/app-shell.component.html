@@ -16,113 +16,137 @@
   <!-- CONTENT -->
   <mat-sidenav-content class="shell-content">
 
-    <!-- ✅ HEADER (sticky) -->
-    <mat-toolbar class="topbar">
+    <!-- ✅ HEADER WRAPPER (sticky) -->
+    <div class="header-wrap">
 
-      <!-- LEFT -->
-      <div class="tb-left">
-        <button mat-icon-button class="tb-ic" (click)="toggleSidebarMode()">
-          <mat-icon>menu</mat-icon>
-        </button>
+      <!-- TOPBAR -->
+      <mat-toolbar class="topbar">
 
-        <div class="tb-brand" (click)="goToModules()">
-          <div class="tb-title">CriptonERP</div>
-          <div class="tb-sub">Enterprise Suite</div>
-        </div>
-      </div>
+        <!-- LEFT -->
+        <div class="tb-left">
+          <button mat-icon-button class="tb-ic" (click)="toggleSidebarMode()">
+            <mat-icon>menu</mat-icon>
+          </button>
 
-      <!-- SEARCH -->
-      <div class="tb-search">
-        <mat-form-field appearance="outline" class="tb-search-field">
-          <mat-icon matPrefix>search</mat-icon>
-          <input
-            matInput
-            placeholder="Search..."
-            [ngModel]="headerSearch"
-            (ngModelChange)="onHeaderSearch($event)"
-          />
-        </mat-form-field>
-      </div>
-
-      <span class="tb-spacer"></span>
-
-      <!-- RIGHT -->
-      <ng-container *ngIf="ctx$ | async as ctx">
-        <div class="tb-right">
-
-          <div class="tb-chip">
-            <mat-icon class="chip-ic">calendar_today</mat-icon>
-            <span class="chip-text">{{ todayText }}</span>
+          <div class="tb-brand" (click)="goToModules()">
+            <div class="tb-title">Cripton ERP</div>
+            <div class="tb-sub">Enterprise Suite</div>
           </div>
+        </div>
 
-          <button mat-icon-button class="tb-ic" matTooltip="Settings">
-            <mat-icon>settings</mat-icon>
-          </button>
+        <!-- SEARCH -->
+        <div class="tb-search">
+          <mat-form-field appearance="outline" class="tb-search-field">
+            <mat-icon matPrefix>search</mat-icon>
+            <input
+              matInput
+              placeholder="Search..."
+              [ngModel]="headerSearch"
+              (ngModelChange)="onHeaderSearch($event)"
+            />
+          </mat-form-field>
+        </div>
 
-          <button
-            mat-icon-button
-            class="tb-ic"
-            matTooltip="Notifications"
-            [matMenuTriggerFor]="notifyMenu"
-          >
-            <mat-icon [matBadge]="notifications.length" matBadgeColor="warn">notifications</mat-icon>
-          </button>
+        <span class="tb-spacer"></span>
 
-          <button mat-icon-button class="tb-ic" matTooltip="More">
-            <mat-icon>more_vert</mat-icon>
-          </button>
+        <!-- RIGHT -->
+        <ng-container *ngIf="ctx$ | async as ctx">
+          <div class="tb-right">
 
-          <!-- user dropdown -->
-          <div class="tb-user" [matMenuTriggerFor]="userMenu">
-            <img class="tb-user-img" [src]="ctx.userImageUrl || userImageUrlFallback" alt="user" />
-            <div class="tb-user-txt">
-              <div class="u1">{{ ctx.userRole || ctx.userName }}</div>
-              <div class="u2">{{ ctx.companyName }}</div>
+            <div class="tb-chip">
+              <mat-icon class="chip-ic">calendar_today</mat-icon>
+              <span class="chip-text">{{ todayText }}</span>
             </div>
-            <mat-icon class="u-chev">expand_more</mat-icon>
+
+            <button mat-icon-button class="tb-ic" matTooltip="Settings">
+              <mat-icon>settings</mat-icon>
+            </button>
+
+            <button
+              mat-icon-button
+              class="tb-ic"
+              matTooltip="Notifications"
+              [matMenuTriggerFor]="notifyMenu"
+            >
+              <mat-icon [matBadge]="notifications.length" matBadgeColor="warn">notifications</mat-icon>
+            </button>
+
+            <button mat-icon-button class="tb-ic" matTooltip="More">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+
+            <!-- ✅ user trigger -->
+            <div class="tb-user" [matMenuTriggerFor]="userMenu">
+              <img class="tb-user-img" [src]="ctx.userImageUrl || userImageUrlFallback" alt="user" />
+              <div class="tb-user-txt">
+                <div class="u1">{{ ctx.userRole || ctx.userName }}</div>
+                <div class="u2">{{ ctx.companyName }}</div>
+              </div>
+              <mat-icon class="u-chev">expand_more</mat-icon>
+            </div>
+
+            <!-- Notification menu -->
+            <mat-menu #notifyMenu="matMenu" class="menu-card" xPosition="before" yPosition="below">
+              <button mat-menu-item *ngFor="let n of notifications">
+                <mat-icon>notifications</mat-icon>
+                <span>{{ n.title }}</span>
+              </button>
+            </mat-menu>
+
+            <!-- ✅ USER MENU (must be class="user-menu") -->
+            <mat-menu #userMenu="matMenu"
+                      class="user-menu"
+                      xPosition="before"
+                      yPosition="below"
+                      overlapTrigger="false">
+
+              <div class="um-head" (click)="$event.stopPropagation()">
+                <div class="um-name">{{ ctx.userName || ctx.userRole }}</div>
+                <div class="um-ip">IP: {{ userMenuIp }}</div>
+              </div>
+
+              <div class="um-divider"></div>
+
+              <button mat-menu-item class="um-item" (click)="goToProfile()">
+                <mat-icon class="um-ic">person</mat-icon>
+                <span>Profile</span>
+              </button>
+
+              <button mat-menu-item class="um-item" (click)="goToChangePassword()">
+                <mat-icon class="um-ic">key</mat-icon>
+                <span>Change Password</span>
+              </button>
+
+              <button mat-menu-item class="um-item" (click)="goToHelp()">
+                <mat-icon class="um-ic">help_outline</mat-icon>
+                <span>Help</span>
+              </button>
+
+              <div class="um-divider"></div>
+
+              <button mat-menu-item class="um-item um-logout" (click)="onLogout()">
+                <mat-icon class="um-ic">logout</mat-icon>
+                <span>Logout</span>
+              </button>
+
+            </mat-menu>
+
           </div>
+        </ng-container>
 
-          <!-- Notification menu -->
-          <mat-menu #notifyMenu="matMenu" class="menu-card" xPosition="before" yPosition="below">
-            <button mat-menu-item *ngFor="let n of notifications">
-              <mat-icon>notifications</mat-icon>
-              <span>{{ n.title }}</span>
-            </button>
-          </mat-menu>
+      </mat-toolbar>
 
-          <!-- User menu -->
-          <mat-menu #userMenu="matMenu" class="menu-card" xPosition="before" yPosition="below">
-            <button mat-menu-item (click)="goToProfile()">
-              <mat-icon>person</mat-icon>
-              <span>Profile</span>
-            </button>
+      <!-- breadcrumb -->
+      <div class="breadcrumb-bar">
+        <app-breadcrumb class="breadcrumb-in-header"></app-breadcrumb>
+      </div>
 
-            <button mat-menu-item (click)="goToChangePassword()">
-              <mat-icon>lock</mat-icon>
-              <span>Change Password</span>
-            </button>
+    </div>
 
-            <mat-divider></mat-divider>
-
-            <button mat-menu-item (click)="onLogout()">
-              <mat-icon>logout</mat-icon>
-              <span>Logout</span>
-            </button>
-          </mat-menu>
-
-        </div>
-      </ng-container>
-    </mat-toolbar>
-
-    <!-- ✅ BODY (NO TOP GAP) -->
+    <!-- BODY -->
     <div class="shell-body">
-      <!-- breadcrumb should touch header area visually (no extra top space) -->
-      <div class="content-wrap">
-        <app-breadcrumb class="breadcrumb-host"></app-breadcrumb>
-
-        <div class="page-wrap">
-          <router-outlet></router-outlet>
-        </div>
+      <div class="page-wrap">
+        <router-outlet></router-outlet>
       </div>
     </div>
 

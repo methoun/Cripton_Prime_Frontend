@@ -9,13 +9,11 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
-
+  gap: 2px;
   background: #fff;
-  border-radius: 12px;
-  padding: 6px 10px; /* ✅ less padding */
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: px;
+  padding: 2px 1px;
+
 }
 
 .bc-home-icon {
