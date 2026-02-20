@@ -1,13 +1,8 @@
-/* tools/generate-routes.js (PRO)
- * - Scans: src/app/features/**/pages/**/**/*.component.ts
- * - Reads: export const DB_ROUTE = '/...';
- * - Generates: src/app/core/routing/routes.generated.ts
- * - Validates:
- *    - Leading slash required (auto-fix)
- *    - No trailing slash (auto-fix)
- *    - Duplicate DB_ROUTE => error
- *    - Empty/invalid routes => error
- * - Pretty report output
+/* tools/generate-routes.js
+ * Scans all page components for:
+ *   export const DB_ROUTE = '/some/path';
+ * Then generates:
+ *   src/app/core/routing/routes.generated.ts
  */
 
 const fs = require("fs");
@@ -21,11 +16,9 @@ const OUT_FILE = path.join(OUT_DIR, "routes.generated.ts");
 
 function walk(dir, files = []) {
   if (!fs.existsSync(dir)) return files;
-
   for (const name of fs.readdirSync(dir)) {
     const full = path.join(dir, name);
     const st = fs.statSync(full);
-
     if (st.isDirectory()) walk(full, files);
     else files.push(full);
   }
@@ -36,141 +29,35 @@ function toPosix(p) {
   return p.replace(/\\/g, "/");
 }
 
-function normalizeRoute(r) {
-  if (!r || typeof r !== "string") return "";
-  let route = r.trim();
-
-  // auto-add leading slash
-  if (!route.startsWith("/")) route = "/" + route;
-
-  // remove query/hash if any (safety)
-  route = route.split("?")[0].split("#")[0];
-
-  // remove trailing slash (except root "/")
-  if (route.length > 1 && route.endsWith("/")) route = route.slice(0, -1);
-
-  // collapse multiple slashes
-  route = route.replace(/\/{2,}/g, "/");
-
-  return route;
-}
-
-function isValidRoute(route) {
-  // very safe validation:
-  // - must start with /
-  // - should not contain spaces
-  // - allow a-zA-Z0-9 - _ /
-  if (!route || route === "/") return false;
-  if (!route.startsWith("/")) return false;
-  if (/\s/.test(route)) return false;
-  if (!/^\/[A-Za-z0-9/_-]+$/.test(route)) return false;
-  return true;
-}
-
-function relFromAppTs(fileAbsPath) {
-  return toPosix(path.relative(APP_DIR, fileAbsPath)).replace(/\.ts$/, "");
-}
-
-function readDbRoute(tsText) {
-  const m = tsText.match(
-    /export\s+const\s+DB_ROUTE\s*=\s*['"`]([^'"`]+)['"`]\s*;/
-  );
-  return m ? m[1].trim() : null;
-}
-
-function readClassName(tsText) {
-  const m = tsText.match(/export\s+class\s+([A-Za-z0-9_]+)\s*/);
-  return m ? m[1] : null;
-}
-
-function die(message) {
-  console.error("\n❌ ROUTE GENERATION FAILED\n" + message + "\n");
-  process.exit(1);
-}
-
-function padRight(s, n) {
-  const str = String(s);
-  return str.length >= n ? str : str + " ".repeat(n - str.length);
-}
-
-// -------------------- MAIN --------------------
-
-if (!fs.existsSync(FEATURES_DIR)) {
-  die(`Could not find: ${FEATURES_DIR}`);
-}
-
-// only pages/** and *.component.ts
-const candidateFiles = walk(FEATURES_DIR)
+const all = walk(FEATURES_DIR)
   .filter(f => f.includes(`${path.sep}pages${path.sep}`))
   .filter(f => f.endsWith(".component.ts"));
 
 const entries = [];
-const warnings = [];
 
-for (const file of candidateFiles) {
+for (const file of all) {
   const text = fs.readFileSync(file, "utf8");
 
-  const rawRoute = readDbRoute(text);
-  if (!rawRoute) continue; // ignore components without DB_ROUTE
+  const routeMatch = text.match(/export\s+const\s+DB_ROUTE\s*=\s*['"`]([^'"`]+)['"`]\s*;/);
+  if (!routeMatch) continue;
 
-  const className = readClassName(text);
-  if (!className) {
-    die(`Missing "export class ..." in:\n- ${toPosix(file)}`);
-  }
+  const route = routeMatch[1].trim();
 
-  const route = normalizeRoute(rawRoute);
+  const classMatch = text.match(/export\s+class\s+([A-Za-z0-9_]+)\s*/);
+  if (!classMatch) continue;
 
-  if (route !== rawRoute) {
-    warnings.push(`Normalized route in ${toPosix(file)}:\n  "${rawRoute}" -> "${route}"`);
-  }
+  const className = classMatch[1];
 
-  if (!isValidRoute(route)) {
-    die(`Invalid DB_ROUTE in:\n- ${toPosix(file)}\nDB_ROUTE="${rawRoute}"\nNormalized="${route}"\n\nRules:\n- Must start with '/'\n- No spaces\n- Only letters/numbers/_/- and '/'`);
-  }
-
-  const relFromApp = relFromAppTs(file);
+  const relFromApp = toPosix(path.relative(APP_DIR, file)).replace(/\.ts$/, "");
   const importPath = `../../${relFromApp}`;
 
-  entries.push({
-    route,
-    className,
-    importPath,
-    file: toPosix(file),
-  });
+  entries.push({ route, className, importPath });
 }
 
-// no routes found = warn (not error)
-if (entries.length === 0) {
-  console.log("⚠️ No DB_ROUTE found in any pages. routes.generated.ts will still be generated empty.");
-}
-
-// Duplicate route detection
-const byRoute = new Map();
-for (const e of entries) {
-  if (!byRoute.has(e.route)) byRoute.set(e.route, []);
-  byRoute.get(e.route).push(e);
-}
-
-const duplicates = [];
-for (const [route, arr] of byRoute.entries()) {
-  if (arr.length > 1) duplicates.push({ route, files: arr.map(x => x.file) });
-}
-if (duplicates.length > 0) {
-  let msg = "Duplicate DB_ROUTE detected:\n";
-  for (const d of duplicates) {
-    msg += `\nRoute: ${d.route}\n`;
-    for (const f of d.files) msg += `- ${f}\n`;
-  }
-  die(msg);
-}
-
-// Sort stable by route
 entries.sort((a, b) => a.route.localeCompare(b.route));
 
-// Ensure output dir
 fs.mkdirSync(OUT_DIR, { recursive: true });
 
-// Generate TS file
 const lines = [];
 lines.push("/* AUTO-GENERATED FILE. DO NOT EDIT MANUALLY. */");
 lines.push("/* Generated by: node tools/generate-routes.js */");
@@ -186,26 +73,6 @@ lines.push("");
 
 fs.writeFileSync(OUT_FILE, lines.join("\n"), "utf8");
 
-// Report
-console.log("\n✅ routes.generated.ts created/updated");
-console.log(`📄 ${toPosix(OUT_FILE)}`);
-console.log(`📌 Total routes: ${entries.length}`);
-console.log(`📌 Scanned files: ${candidateFiles.length}`);
-
-if (warnings.length) {
-  console.log("\n⚠️ Normalization warnings:");
-  for (const w of warnings) console.log("- " + w.replace(/\n/g, "\n  "));
-}
-
-if (entries.length) {
-  console.log("\n🧾 Route list:");
-  const maxRouteLen = Math.min(
-    60,
-    Math.max(...entries.map(e => e.route.length))
-  );
-  for (const e of entries) {
-    console.log(`- ${padRight(e.route, maxRouteLen)}  ->  ${e.className}`);
-  }
-}
-
-console.log("");
+console.log(`✅ routes.generated.ts created`);
+console.log(`✅ total routes: ${entries.length}`);
+console.log(`📄 ${OUT_FILE}`);
