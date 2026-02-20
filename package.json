@@ -2,13 +2,16 @@
   "name": "cripton-prime",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "start": "ng serve",
-    "build": "ng build",
-    "build:prod": "ng build -c production",
-    "lint": "ng lint",
-    "routes:gen": "node tools/generate-routes.js"
-  },
+"scripts": {
+  "start": "ng serve",
+  "prestart": "npm run routes:gen",
+  "build": "ng build",
+  "prebuild": "npm run routes:gen",
+  "build:prod": "ng build -c production",
+  "prebuild:prod": "npm run routes:gen",
+  "lint": "ng lint",
+  "routes:gen": "node tools/generate-routes.js"
+},
   "dependencies": {
     "@angular/animations": "^21.0.0",
     "@angular/cdk": "^21.0.0",
