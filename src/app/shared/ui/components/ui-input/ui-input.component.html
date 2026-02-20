@@ -1,0 +1,18 @@
+<mat-form-field class="ui-field" appearance="outline">
+  <mat-label>{{ label }}</mat-label>
+
+  @if (prefixIcon) { <mat-icon matPrefix>{{ prefixIcon }}</mat-icon> }
+
+  <input matInput
+         [type]="type"
+         [placeholder]="placeholder || ''"
+         [formControl]="control"
+         [required]="required"
+         [disabled]="disabled"
+         [attr.autocomplete]="autocomplete || null" />
+
+  @if (suffixIcon) { <mat-icon matSuffix>{{ suffixIcon }}</mat-icon> }
+
+  @if (hint) { <mat-hint>{{ hint }}</mat-hint> }
+  @if (control.touched && control.invalid) { <mat-error>Invalid {{ label }}</mat-error> }
+</mat-form-field>

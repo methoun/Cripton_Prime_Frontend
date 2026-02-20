@@ -8,7 +8,7 @@ import { NavigationService } from '../../../../core/services/navigation.service'
 @Component({
   selector: 'app-administration-dashboard-page',
   standalone: true,
-  imports: [NgIf, AsyncPipe, MatCardModule, MatIconModule],
+  imports: [AsyncPipe, MatCardModule, MatIconModule],
   templateUrl: './administration-dashboard-page.component.html',
   styleUrl: './administration-dashboard-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

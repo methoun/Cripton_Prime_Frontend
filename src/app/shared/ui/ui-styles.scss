@@ -1,0 +1,13 @@
+/*
+  OPTIONAL: import this in your global styles.scss (once) if you want colored toasts:
+
+  @use './app/shared/ui/ui-styles.scss';
+
+  or copy the classes below into styles.scss
+*/
+
+.ui-toast { }
+.ui-toast--success { }
+.ui-toast--info { }
+.ui-toast--warn { }
+.ui-toast--error { }

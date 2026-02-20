@@ -1,0 +1,19 @@
+<mat-form-field class="ui-field" appearance="outline">
+  <mat-label>{{ label }}</mat-label>
+  <input
+    matInput
+    [placeholder]="placeholder || ''"
+    [matAutocomplete]="auto"
+    [disabled]="disabled"
+    (input)="onInput(($any($event.target).value))"
+    [value]="displayWith(control.value)"
+  />
+
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayWith">
+    @for (it of filtered(); track it.label) {
+      <mat-option [value]="it.value">{{ it.label }}</mat-option>
+    }
+  </mat-autocomplete>
+
+  @if (control.touched && control.invalid) { <mat-error>Invalid {{ label }}</mat-error> }
+</mat-form-field>

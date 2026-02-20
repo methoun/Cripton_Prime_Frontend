@@ -1,0 +1,27 @@
+.ui-card { border-radius:16px; }
+.ui-card--padded .ui-card__body { padding:14px; }
+
+.ui-card__header {
+  display:grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items:center;
+  padding: 14px 14px 10px 14px;
+}
+.ui-card__title { font-weight:600; font-size:15px; }
+.ui-card__subtitle { margin-top:4px; opacity:.75; font-size:12px; }
+
+.ui-card__actions {
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.ui-card__body { padding:0; }
+
+@media (max-width: 768px) {
+  .ui-card__header { grid-template-columns: 1fr; }
+  .ui-card__actions { justify-content: flex-start; }
+}

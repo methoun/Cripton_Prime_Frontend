@@ -1,0 +1,11 @@
+.ui-toolbar { border-radius: 16px; padding: 0 12px; min-height: 56px; }
+.ui-toolbar__left { display:flex; flex-direction: column; }
+.ui-toolbar__title { font-weight: 600; }
+.ui-toolbar__subtitle { font-size: 12px; opacity: .75; }
+.ui-toolbar__spacer { flex: 1 1 auto; }
+.ui-toolbar__right { display:flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+@media (max-width: 768px) {
+  .ui-toolbar { min-height: auto; padding: 8px 12px; }
+  .ui-toolbar__right { width: 100%; justify-content: flex-start; }
+}

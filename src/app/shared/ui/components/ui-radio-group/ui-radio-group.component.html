@@ -1,0 +1,9 @@
+<div class="ui-radio-group">
+  @if (label) { <div class="ui-radio-group__label">{{ label }}</div> }
+
+  <mat-radio-group [formControl]="control" [disabled]="disabled" [class.ui-radio-group--col]="layout==='column'">
+    @for (opt of options; track opt.label) {
+      <mat-radio-button [value]="opt.value" [disabled]="opt.disabled === true">{{ opt.label }}</mat-radio-button>
+    }
+  </mat-radio-group>
+</div>

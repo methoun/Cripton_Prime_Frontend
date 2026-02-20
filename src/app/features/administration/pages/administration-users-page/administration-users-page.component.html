@@ -1,37 +1,54 @@
 <div class="users">
   <mat-card class="card">
     <div class="head">
-      <div class="title">Users</div>
-      <div class="sub">Create a user using backend endpoint <code>POST /api/users/create</code></div>
+      <div class="left">
+        <div class="title">Users</div>
+        <div class="sub">User Setup → User List (Create modal from button)</div>
+      </div>
+
+      <div class="right">
+        <button mat-flat-button color="primary" (click)="openCreateDialog()">
+          <mat-icon>person_add</mat-icon>
+          Add User
+        </button>
+      </div>
     </div>
 
-    <form [formGroup]="form" class="form">
-      <mat-form-field appearance="outline">
-        <mat-label>Username</mat-label>
-        <input matInput formControlName="username" />
-        <mat-icon matSuffix>person</mat-icon>
-      </mat-form-field>
+    <div class="table-wrap">
+      <table mat-table [dataSource]="users" class="mat-elevation-z0">
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>Id</th>
+          <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+        </ng-container>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Full Name</mat-label>
-        <input matInput formControlName="fullName" />
-        <mat-icon matSuffix>badge</mat-icon>
-      </mat-form-field>
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>Username</th>
+          <td mat-cell *matCellDef="let row">{{ row.username }}</td>
+        </ng-container>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Email</mat-label>
-        <input matInput formControlName="email" />
-        <mat-icon matSuffix>mail</mat-icon>
-      </mat-form-field>
+        <ng-container matColumnDef="fullName">
+          <th mat-header-cell *matHeaderCellDef>Full Name</th>
+          <td mat-cell *matCellDef="let row">{{ row.fullName }}</td>
+        </ng-container>
 
-      <button mat-raised-button color="primary" type="button" (click)="create()" [disabled]="busy">
-        {{ busy ? 'Saving…' : 'Create User' }}
-      </button>
-    </form>
-  </mat-card>
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Email</th>
+          <td mat-cell *matCellDef="let row">{{ row.email }}</td>
+        </ng-container>
 
-  <mat-card class="card result" *ngIf="createdUser">
-    <div class="title">Created User</div>
-    <pre>{{ createdUser | json }}</pre>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+
+      @if (users.length === 0) {
+        <div class="empty">
+          <mat-icon>inbox</mat-icon>
+          <div>
+            <div class="empty__title">No users yet</div>
+            <div class="empty__sub">Click <b>Add User</b> to create your first user.</div>
+          </div>
+        </div>
+      }
+    </div>
   </mat-card>
 </div>

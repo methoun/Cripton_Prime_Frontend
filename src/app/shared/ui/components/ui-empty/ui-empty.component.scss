@@ -1,0 +1,19 @@
+.ui-empty {
+  padding:18px;
+  border-radius:16px;
+  border:1px dashed rgba(0,0,0,0.12);
+  display:grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.ui-empty__icon { opacity:.65; }
+.ui-empty__title { font-weight:600; }
+.ui-empty__subtitle { margin-top:4px; opacity:.75; font-size:12px; }
+.ui-empty__actions { display:flex; gap:8px; align-items:center; }
+
+@media (max-width: 768px) {
+  .ui-empty { grid-template-columns: 1fr; }
+  .ui-empty__actions { justify-content: flex-start; }
+}

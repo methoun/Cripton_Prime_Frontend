@@ -1,0 +1,37 @@
+@switch (variant) {
+  @case ('icon') {
+    <button mat-icon-button
+            [class.ui-btn--full]="fullWidth"
+            [color]="color"
+            [disabled]="isDisabled"
+            [attr.type]="type"
+            [matTooltip]="tooltip || ''"
+            [matTooltipDisabled]="!tooltip">
+      @if (loading) {
+        <mat-progress-spinner mode="indeterminate" diameter="18"></mat-progress-spinner>
+      } @else {
+        <mat-icon>{{ icon || 'bolt' }}</mat-icon>
+      }
+    </button>
+  }
+  @default {
+    <button
+      [attr.type]="type"
+      [disabled]="isDisabled"
+      [color]="color"
+      [class.ui-btn--full]="fullWidth"
+      [matTooltip]="tooltip || ''"
+      [matTooltipDisabled]="!tooltip"
+      [attr.mat-flat-button]="variant === 'flat' ? '' : null"
+      [attr.mat-stroked-button]="variant === 'stroked' ? '' : null"
+      [attr.mat-raised-button]="variant === 'raised' ? '' : null"
+    >
+      @if (loading) {
+        <mat-progress-spinner mode="indeterminate" diameter="18"></mat-progress-spinner>
+      } @else {
+        @if (icon) { <mat-icon class="ui-btn__icon">{{ icon }}</mat-icon> }
+        <ng-container>{{ label }}</ng-container>
+      }
+    </button>
+  }
+}

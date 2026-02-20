@@ -1,0 +1,14 @@
+.ui-confirm { padding: 18px; max-width: min(92vw, 520px); }
+.ui-confirm__title { font-weight: 700; font-size: 16px; }
+.ui-confirm__msg { margin-top: 10px; opacity: .85; line-height: 1.45; }
+.ui-confirm__actions {
+  margin-top: 16px;
+  display:flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+@media (max-width: 480px) {
+  .ui-confirm__actions { justify-content: stretch; }
+  .ui-confirm__actions button { width: 100%; }
+}

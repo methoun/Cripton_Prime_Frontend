@@ -1,0 +1,22 @@
+.ui-field { width: 100%; }
+
+:host ::ng-deep .ui-select-panel.mat-mdc-select-panel {
+  max-width: min(92vw, 520px);
+  width: 100%;
+}
+
+:host ::ng-deep .ui-select-panel .mat-mdc-option { min-height: 44px; }
+
+:host ::ng-deep .ui-select-search__option.mat-mdc-option {
+  height: auto;
+  min-height: auto;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--mat-sys-surface, #fff);
+}
+
+.ui-select-search__field { width: 100%; margin: 0; }
+:host ::ng-deep .ui-select-search__field .mat-mdc-form-field-subscript-wrapper { display: none; }

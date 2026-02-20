@@ -1,0 +1,19 @@
+<mat-form-field class="ui-field" appearance="outline">
+  <mat-label>{{ label }}</mat-label>
+
+  <mat-chip-grid #chipGrid>
+    @for (v of values; track v) {
+      <mat-chip-row (removed)="remove(v)">
+        {{ v }}
+        <button matChipRemove aria-label="Remove">
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </mat-chip-row>
+    }
+  </mat-chip-grid>
+
+  <input matInput
+         [placeholder]="placeholder"
+         (keydown.enter)="$event.preventDefault(); add($any($event.target).value); $any($event.target).value='';"
+         [matChipInputFor]="chipGrid" />
+</mat-form-field>

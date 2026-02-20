@@ -1,0 +1,11 @@
+<div class="ui-confirm">
+  <div class="ui-confirm__title">{{ data.title || 'Confirm' }}</div>
+  <div class="ui-confirm__msg">{{ data.message || 'Are you sure?' }}</div>
+
+  <div class="ui-confirm__actions">
+    <button mat-stroked-button (click)="cancel()">{{ data.cancelText || 'Cancel' }}</button>
+    <button mat-flat-button [color]="data.danger ? 'warn' : 'primary'" (click)="confirm()">
+      {{ data.confirmText || 'Yes' }}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+.ui-loading {
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:999px;
+  border:1px solid rgba(0,0,0,0.10);
+  max-width: 100%;
+}
+.ui-loading__text { font-size:12px; opacity:.8; overflow:hidden; text-overflow: ellipsis; white-space: nowrap; }

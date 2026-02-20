@@ -1,0 +1,50 @@
+<div class="ui-table">
+  <div class="ui-table__top">
+    <mat-form-field appearance="outline" class="ui-table__search">
+      <mat-label>Search</mat-label>
+      <input matInput (input)="applyFilter($any($event.target).value)" placeholder="Type to filter..." />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <div class="ui-table__top-actions">
+      <ng-content select="[tableActions]"></ng-content>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="ui-table__loading">
+      <mat-progress-spinner mode="indeterminate" diameter="28"></mat-progress-spinner>
+      <div>Loading...</div>
+    </div>
+  } @else if ((rows?.length ?? 0) === 0) {
+    <ui-empty [title]="emptyTitle" [subtitle]="emptySubtitle"></ui-empty>
+  } @else {
+    <div class="ui-table__wrap">
+      <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z0">
+        @for (col of columns; track col.key) {
+          <ng-container [matColumnDef]="col.key">
+            <th mat-header-cell *matHeaderCellDef
+                [style.width]="col.width || null"
+                [mat-sort-header]="col.sortable === false ? null : col.key"
+                [disabled]="col.sortable === false">
+              {{ col.header }}
+            </th>
+            <td mat-cell *matCellDef="let row"
+                [style.text-align]="(col.align || 'start')">
+              {{ col.cell(row) ?? '' }}
+            </td>
+          </ng-container>
+        }
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+
+    <mat-paginator
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      showFirstLastButtons
+    ></mat-paginator>
+  }
+</div>

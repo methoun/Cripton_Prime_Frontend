@@ -87,10 +87,10 @@
                 <span class="sub-text">{{ menu.title }}</span>
               </button>
 
-              <div class="sub-list" *ngIf="(menu.subMenus ?? []).length > 0">
+              <div class="sub-list" *ngIf="menu.subMenus.length > 0">
                 <button
                   class="sub-item"
-                  *ngFor="let sm of (menu.subMenus ?? [])"
+                  *ngFor="let sm of menu.subMenus"
                   [class.active]="isActiveRoute(curUrl, sm.route)"
                   (click)="goRoute(sm.route)"
                 >

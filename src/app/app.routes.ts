@@ -11,8 +11,6 @@ import { AdministrationUsersPageComponent } from './features/administration/page
 import { HrmDashboardPageComponent } from './features/hrm/pages/hrm-dashboard-page/hrm-dashboard-page.component';
 import { PrlDashboardPageComponent } from './features/prl/pages/prl-dashboard-page/prl-dashboard-page.component';
 
-import { NotFoundPageComponent } from './shared/pages/not-found-page/not-found-page.component';
-
 export const routes: Routes = [
   {
     path: 'login',
@@ -31,7 +29,7 @@ export const routes: Routes = [
       { path: 'hrm', component: HrmDashboardPageComponent },
       { path: 'prl', component: PrlDashboardPageComponent },
 
-      // existing routes (keep)
+      // ✅ existing explicit routes (keep)
       { path: 'administration/dashboard', component: AdministrationDashboardPageComponent },
       { path: 'administration/users', component: AdministrationUsersPageComponent },
 
@@ -40,8 +38,12 @@ export const routes: Routes = [
 
       { path: '', pathMatch: 'full', redirectTo: 'landing' },
 
-      // ✅ child wildcard
-      { path: '**', component: NotFoundPageComponent }
+      {
+        path: '**',
+        loadComponent: () =>
+          import('./shared/pages/db-route-host-page/db-route-host-page.component')
+            .then(m => m.DbRouteHostPageComponent)
+      }
     ]
   },
 

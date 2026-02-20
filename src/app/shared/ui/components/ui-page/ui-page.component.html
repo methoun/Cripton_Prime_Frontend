@@ -1,0 +1,29 @@
+<section class="ui-page">
+  <header class="ui-page__header">
+    <div class="ui-page__heading">
+      <h1 class="ui-page__title">{{ title }}</h1>
+      @if (subtitle) { <p class="ui-page__subtitle">{{ subtitle }}</p> }
+      @if (meta?.length) {
+        <div class="ui-page__meta">
+          <mat-chip-set>
+            @for (m of meta; track m) { <mat-chip>{{ m }}</mat-chip> }
+          </mat-chip-set>
+        </div>
+      }
+    </div>
+
+    <div class="ui-page__actions">
+      <ng-content select="[pageActions]"></ng-content>
+    </div>
+  </header>
+
+  <div class="ui-page__breadcrumb">
+    <ng-content select="[pageBreadcrumb]"></ng-content>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="ui-page__content">
+    <ng-content></ng-content>
+  </div>
+</section>

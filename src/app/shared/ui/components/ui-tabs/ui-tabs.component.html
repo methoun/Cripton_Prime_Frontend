@@ -1,0 +1,11 @@
+<mat-tab-group class="ui-tabs" [selectedIndex]="selectedIndex">
+  @for (t of tabs; track t.label) {
+    <mat-tab [disabled]="t.disabled === true">
+      <ng-template mat-tab-label>
+        @if (t.icon) { <mat-icon class="ui-tabs__icon">{{ t.icon }}</mat-icon> }
+        {{ t.label }}
+      </ng-template>
+      <ng-content select="[tabContent]"></ng-content>
+    </mat-tab>
+  }
+</mat-tab-group>

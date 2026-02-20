@@ -1,0 +1,19 @@
+<mat-card class="ui-card" [class.ui-card--padded]="padded">
+  @if (title || subtitle) {
+    <div class="ui-card__header">
+      <div>
+        @if (title) { <div class="ui-card__title">{{ title }}</div> }
+        @if (subtitle) { <div class="ui-card__subtitle">{{ subtitle }}</div> }
+      </div>
+
+      <div class="ui-card__actions">
+        <ng-content select="[cardActions]"></ng-content>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+  }
+
+  <div class="ui-card__body">
+    <ng-content></ng-content>
+  </div>
+</mat-card>

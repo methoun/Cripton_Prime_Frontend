@@ -1,0 +1,15 @@
+:host { display:inline-block; max-width: 100%; }
+
+button {
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  max-width: 100%;
+}
+
+.ui-btn--full { width: 100%; justify-content: center; }
+.ui-btn__icon { margin-right: 2px; }
+
+mat-progress-spinner { display: inline-block; }

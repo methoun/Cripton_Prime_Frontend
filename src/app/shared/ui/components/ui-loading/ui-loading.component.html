@@ -1,0 +1,6 @@
+@if (loading) {
+  <div class="ui-loading">
+    <mat-progress-spinner mode="indeterminate" diameter="28"></mat-progress-spinner>
+    @if (message) { <div class="ui-loading__text">{{ message }}</div> }
+  </div>
+}

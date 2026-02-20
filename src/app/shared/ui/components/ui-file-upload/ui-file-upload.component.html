@@ -1,0 +1,11 @@
+<div class="ui-upload">
+  <ui-button [label]="label" icon="upload" variant="stroked" [disabled]="disabled" (click)="openPicker()"></ui-button>
+
+  <input #fileInput
+         type="file"
+         class="ui-upload__input"
+         [attr.accept]="accept || null"
+         [attr.multiple]="multiple ? '' : null"
+         (change)="onChange($any($event.target).files)" />
+  <ng-content></ng-content>
+</div>

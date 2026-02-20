@@ -1,0 +1,32 @@
+<mat-form-field class="ui-field" appearance="outline">
+  <mat-label>{{ label }}</mat-label>
+
+  <mat-select
+    [formControl]="control"
+    [required]="required"
+    [disabled]="disabled"
+    [placeholder]="placeholder || ''"
+    [panelClass]="panelClass"
+    (openedChange)="onOpened($event)"
+  >
+    <mat-option class="ui-select-search__option" disabled>
+      <mat-form-field class="ui-select-search__field" appearance="outline">
+        <mat-icon matPrefix>search</mat-icon>
+        <input
+          #searchInput
+          matInput
+          [placeholder]="searchPlaceholder"
+          (input)="onQuery($any($event.target).value)"
+          (keydown)="$event.stopPropagation()"
+        />
+      </mat-form-field>
+    </mat-option>
+
+    @for (opt of filtered(); track trackByLabel($index, opt)) {
+      <mat-option [value]="opt.value" [disabled]="opt.disabled === true">{{ opt.label }}</mat-option>
+    }
+  </mat-select>
+
+  @if (hint) { <mat-hint>{{ hint }}</mat-hint> }
+  @if (control.touched && control.invalid) { <mat-error>Invalid {{ label }}</mat-error> }
+</mat-form-field>

@@ -1,0 +1,12 @@
+<mat-toolbar class="ui-toolbar" color="transparent">
+  <div class="ui-toolbar__left">
+    @if (title) { <div class="ui-toolbar__title">{{ title }}</div> }
+    @if (subtitle) { <div class="ui-toolbar__subtitle">{{ subtitle }}</div> }
+  </div>
+
+  <span class="ui-toolbar__spacer"></span>
+
+  <div class="ui-toolbar__right">
+    <ng-content></ng-content>
+  </div>
+</mat-toolbar>

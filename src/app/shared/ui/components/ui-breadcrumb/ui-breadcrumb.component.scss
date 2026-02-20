@@ -1,0 +1,11 @@
+.ui-breadcrumb {
+  display:flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 12px;
+  opacity: .85;
+}
+.ui-breadcrumb__link { text-decoration: none; }
+.ui-breadcrumb__sep { opacity: .55; }
+.ui-breadcrumb__current { font-weight: 600; }
