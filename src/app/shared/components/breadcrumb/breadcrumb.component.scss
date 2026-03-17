@@ -1,38 +1,32 @@
 .bc {
   width: 100%;
-  padding: 6px 12px; /* ✅ less vertical space */
+  padding: 8px 18px 10px;
   box-sizing: border-box;
 }
 
-/* ✅ Compact floating bar */
 .bc-card {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 2px;
-  background: #fff;
-  border-radius: px;
-  padding: 2px 1px;
-
+  gap: 8px;
+  background: transparent;
+  padding: 0;
 }
 
 .bc-home-icon {
   width: 18px;
   height: 18px;
   font-size: 18px;
-  opacity: 0.75;
+  color: var(--muted);
 }
 
-/* ✅ scroll if too long, but compact */
 .bc-list {
   list-style: none;
   display: flex;
   align-items: center;
-  gap: 6px;
-
+  gap: 8px;
   margin: 0;
   padding: 0;
-
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
@@ -42,8 +36,9 @@
 .bc-list::-webkit-scrollbar {
   height: 4px;
 }
+
 .bc-list::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
+  background: rgba(148, 163, 184, 0.4);
   border-radius: 999px;
 }
 
@@ -52,45 +47,43 @@
   align-items: center;
 }
 
-/* ✅ Smaller chips */
 .bc-link,
 .bc-current {
-  height: 26px;          /* ✅ smaller */
-  padding: 0 10px;
+  height: 30px;
+  padding: 0 12px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
 }
 
 .bc-link {
-  text-decoration: none;
   cursor: pointer;
-  background: rgba(63, 81, 181, 0.08);
-  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  background: var(--primary-soft);
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .bc-link:hover {
-  background: rgba(63, 81, 181, 0.14);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.10);
+  background: rgba(79, 70, 229, 0.14);
   transform: translateY(-1px);
 }
 
 .bc-text {
-  font-size: 12.5px; /* ✅ smaller font */
+  font-size: 12.5px;
   font-weight: 700;
-  color: #3f51b5;
+  color: var(--primary-strong);
 }
 
 .bc-current {
-  background: rgba(0, 0, 0, 0.06);
+  background: rgba(15, 23, 42, 0.06);
   font-size: 12.5px;
   font-weight: 800;
+  color: var(--text);
 }
 
 .bc-sep {
   font-size: 16px;
   width: 16px;
   height: 16px;
-  opacity: 0.55;
+  color: var(--muted);
   margin: 0 2px;
 }

@@ -2,8 +2,9 @@
   <mat-card class="card">
     <div class="head">
       <div class="left">
+        <div class="eyebrow">Administration</div>
         <div class="title">Users</div>
-        <div class="sub">User Setup → User List</div>
+        <div class="sub">Manage company users, roles and account status from one reusable table.</div>
       </div>
 
       <div class="right">
@@ -36,7 +37,11 @@
 
         <ng-container matColumnDef="role">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Role</th>
-          <td mat-cell *matCellDef="let row">{{ row.role || '-' }}</td>
+          <td mat-cell *matCellDef="let row">
+            <span class="role-chip" [class.role-chip--admin]="(row.role || '').toLowerCase() === 'admin'" [class.role-chip--user]="(row.role || '').toLowerCase() !== 'admin'">
+              {{ row.role || '-' }}
+            </span>
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="status">
@@ -51,12 +56,14 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let row">
-            <button mat-icon-button color="primary" (click)="editUser(row)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button color="warn" (click)="deleteUser(row)">
-              <mat-icon>delete</mat-icon>
-            </button>
+            <div class="actions-group">
+              <button mat-icon-button color="primary" (click)="editUser(row)" matTooltip="Edit user">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteUser(row)" matTooltip="Delete user">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </td>
         </ng-container>
 

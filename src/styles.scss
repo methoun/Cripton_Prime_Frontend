@@ -1,9 +1,6 @@
 @use '@angular/material' as mat;
 
-/* ✅ Inter font stack (global) */
-$font-family: "Inter", Roboto, Arial, sans-serif;
-
-/* ✅ Material Typography config using Inter */
+$font-family: 'Inter', Roboto, Arial, sans-serif;
 $typography: mat.m2-define-typography-config(
   $font-family: $font-family
 );
@@ -18,11 +15,32 @@ $theme: mat.m2-define-light-theme((
   density: 0
 ));
 
-@include mat.core(); /* ✅ safe */
+@include mat.core();
 @include mat.all-component-themes($theme);
 
 :root {
-  --app-bg: #f3f5f7;
+  --primary: #4f46e5;
+  --primary-strong: #4338ca;
+  --primary-soft: #eef2ff;
+  --accent: #0ea5e9;
+  --success: #16a34a;
+  --success-soft: #dcfce7;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --warning: #d97706;
+  --warning-soft: #fef3c7;
+  --app-bg: #f4f7fb;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --muted: #64748b;
+  --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.10);
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
 }
 
 html, body {
@@ -31,26 +49,32 @@ html, body {
 
 body {
   margin: 0;
-  background: var(--app-bg);
+  background:
+    radial-gradient(circle at top left, rgba(79, 70, 229, 0.06), transparent 28%),
+    linear-gradient(180deg, #f8fbff 0%, var(--app-bg) 100%);
+  color: var(--text);
   font-family: $font-family;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ✅ ensure Material inherits Inter everywhere */
 :root,
 .mdc-typography,
 .mat-typography {
   font-family: $font-family;
 }
 
-a {
-  text-decoration: none;
+* {
+  box-sizing: border-box;
 }
 
-/* layout helpers */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
 .page-container {
-  padding: 16px;
+  padding: 20px;
 }
 
 .card-grid {
@@ -59,41 +83,86 @@ a {
   gap: 16px;
 }
 
-/* breadcrumb spacing */
 .breadcrumb-bar {
-  margin-bottom: 5px;
+  margin-bottom: 0;
 }
 
-/* material defaults */
 .mat-mdc-form-field {
   width: 100%;
 }
-/* =====================================================
-   ✅ GLOBAL USER MENU (Angular overlay renders globally)
-   ===================================================== */
+
+.mat-mdc-card {
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button {
+  border-radius: 12px !important;
+}
+
+.mat-mdc-icon-button {
+  transition: background-color .18s ease, transform .18s ease;
+}
+
+.mat-mdc-icon-button:hover {
+  transform: translateY(-1px);
+}
+
+.erp-surface {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.erp-section-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.erp-section-subtitle {
+  font-size: .92rem;
+  color: var(--muted);
+}
+
+.erp-stat-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .user-menu.mat-mdc-menu-panel {
-  border-radius: 14px !important;
+  border-radius: 16px !important;
   padding: 0 !important;
-  min-width: 260px !important;
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18) !important;
+  min-width: 280px !important;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18) !important;
   overflow: hidden !important;
   background: #fff !important;
+  border: 1px solid var(--border) !important;
 }
 
 .user-menu .mat-mdc-menu-content {
   padding: 0 !important;
 }
 
-/* header */
 .user-menu .um-head {
-  padding: 14px 16px 10px !important;
-  background: #fff !important;
+  padding: 16px 18px 12px !important;
+  background: linear-gradient(180deg, rgba(79, 70, 229, 0.08), rgba(79, 70, 229, 0.02)) !important;
 }
 
 .user-menu .um-name {
   font-size: 15px !important;
-  font-weight: 900 !important;
-  color: #111 !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
   line-height: 1.2 !important;
 }
 
@@ -101,43 +170,36 @@ a {
   margin-top: 6px !important;
   font-size: 12px !important;
   font-weight: 600 !important;
-  color: rgba(0, 0, 0, 0.55) !important;
+  color: var(--muted) !important;
 }
 
-/* divider */
 .user-menu .um-divider {
   height: 1px !important;
-  background: rgba(0, 0, 0, 0.10) !important;
+  background: var(--border) !important;
   margin: 0 !important;
 }
 
-/* items */
 .user-menu .um-item.mat-mdc-menu-item {
-  min-height: 40px !important;
-  padding: 0 10px !important;
+  min-height: 42px !important;
+  padding: 0 12px !important;
   border-radius: 0 !important;
 }
 
 .user-menu .um-item .mat-mdc-menu-item-text {
   font-size: 13.5px !important;
   font-weight: 650 !important;
-  color: rgba(0, 0, 0, 0.80) !important;
+  color: rgba(15, 23, 42, 0.88) !important;
 }
 
 .user-menu .um-ic {
-  color: rgba(0, 0, 0, 0.65) !important;
+  color: var(--muted) !important;
 }
 
 .user-menu .um-item:hover {
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: rgba(79, 70, 229, 0.06) !important;
 }
 
-/* logout red */
-.user-menu .um-logout .mat-mdc-menu-item-text {
-  color: #d32f2f !important;
-  font-weight: 800 !important;
-}
-
+.user-menu .um-logout .mat-mdc-menu-item-text,
 .user-menu .um-logout .um-ic {
-  color: #d32f2f !important;
+  color: var(--danger) !important;
 }

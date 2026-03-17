@@ -1,9 +1,13 @@
 <div class="page">
+  <div class="bg-orb bg-orb--one"></div>
+  <div class="bg-orb bg-orb--two"></div>
+
   <mat-card class="login-card">
     <div class="brand">
+      <div class="brand-badge">Enterprise Resource Planning</div>
       <h1>Cripton Prime</h1>
-      <div class="sub">ERP</div>
-      <div class="hint">Sign in to start your session</div>
+      <div class="sub">Secure ERP Workspace</div>
+      <div class="hint">Sign in to continue to your company workspace</div>
     </div>
 
     <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -12,7 +16,7 @@
         <mat-select formControlName="companyId">
           <mat-option *ngFor="let c of companies" [value]="c.id">{{ c.name }}</mat-option>
         </mat-select>
-        <mat-icon matSuffix>apps</mat-icon>
+        <mat-icon matSuffix>apartment</mat-icon>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full" subscriptSizing="dynamic">

@@ -1,161 +1,128 @@
 .shell {
   height: 100vh;
   width: 100%;
+  background: var(--app-bg);
 }
 
 .shell-sidenav {
-  width: 280px;
-  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  width: 288px;
+  border-right: 1px solid var(--border);
   transition: width 180ms ease;
-  background: #fff;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
 }
 
 .shell-sidenav.is-collapsed {
-  width: 72px;
+  width: 84px;
 }
 
 .shell-content {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #f5f6fa;
+  background: transparent;
 }
 
-/* ✅ header (topbar + breadcrumb) sticky as ONE unit */
 .header-wrap {
   position: sticky;
   top: 0;
   z-index: 3000;
-  background: #fff;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.92);
 }
 
-/* TOPBAR */
 .topbar {
-  background: #fff !important;
-  color: #111 !important;
-
-  height: 54px;
-  padding: 0 14px;
-
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: var(--text) !important;
+  height: 64px;
+  padding: 0 18px;
   display: flex;
   align-items: center;
-  gap: 12px;
-
-  border-bottom: 1px solid rgba(0, 0, 0, 0.10);
+  gap: 14px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.95);
   margin: 0 !important;
 }
 
-/* toolbar internal */
 :host ::ng-deep .topbar.mat-toolbar,
 :host ::ng-deep .topbar.mat-mdc-toolbar {
   margin: 0 !important;
   padding-bottom: 0 !important;
 }
 
-/* ✅ breadcrumb bar directly under header - NO GAP */
 .breadcrumb-bar {
   margin: 0;
   padding: 0;
-  background: #fff;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
 }
 
-/* ✅ make breadcrumb full width, no extra padding from component */
 :host ::ng-deep .breadcrumb-in-header {
   display: block;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-/* ✅ BODY scroll area */
 .shell-body {
   flex: 1;
   overflow: auto;
   padding: 0;
   margin: 0;
-  background: #f5f6fa;
+  background: transparent;
 }
 
 .page-wrap {
-  padding: 12px 14px 14px;
+  padding: 18px;
 }
 
-/* LEFT */
 .tb-left {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-width: 240px;
+  min-width: 220px;
 }
 
-/* ✅ FIX: icon button hit-area + center pointer */
 .tb-ic {
-  width: 36px;
-  height: 36px;
-
+  width: 40px;
+  height: 40px;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-
-  border-radius: 999px !important;
+  border-radius: 12px !important;
   cursor: pointer !important;
-
-  color: #111 !important;
+  color: var(--text) !important;
 }
 
-/* ✅ ensure the real clickable element is centered */
-:host ::ng-deep button.tb-ic.mat-mdc-icon-button,
-:host ::ng-deep button.tb-ic.mat-icon-button {
-  width: 36px !important;
-  height: 36px !important;
-  padding: 0 !important;
-  line-height: 36px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+:host ::ng-deep button.tb-ic.mat-mdc-icon-button {
+  padding: 8px;
 }
 
-/* ✅ fix mat-icon alignment inside */
-:host ::ng-deep button.tb-ic .mat-icon,
-:host ::ng-deep button.tb-ic mat-icon {
-  width: 20px !important;
-  height: 20px !important;
-  font-size: 20px !important;
-  line-height: 20px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+.tb-ic:hover {
+  background: rgba(79, 70, 229, 0.08) !important;
 }
 
-/* ✅ badge sometimes shifts hit-area visually; keep it centered */
-:host ::ng-deep button.tb-ic .mat-badge-content {
-  transform: translate(0, 0) !important;
-}
-
-/* brand */
 .tb-brand {
   display: flex;
   flex-direction: column;
-  line-height: 1.05;
+  justify-content: center;
+  min-width: 0;
   cursor: pointer;
 }
 
 .tb-title {
+  font-size: 1.15rem;
+  line-height: 1.1;
   font-weight: 800;
-  font-size: 14px;
+  letter-spacing: -0.02em;
 }
 
 .tb-sub {
-  font-size: 11px;
-  opacity: 0.75;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
 }
 
-/* SEARCH */
 .tb-search {
-  width: 320px;
-  max-width: 45vw;
-  display: flex;
-  align-items: center;
+  width: min(420px, 34vw);
+  min-width: 220px;
 }
 
 .tb-search-field {
@@ -163,84 +130,72 @@
 }
 
 :host ::ng-deep .tb-search-field .mat-mdc-text-field-wrapper {
-  height: 34px;
-  background: #fff;
-}
-
-:host ::ng-deep .tb-search-field .mat-mdc-form-field-infix {
-  min-height: 34px;
-  padding-top: 7px;
-  padding-bottom: 7px;
+  border-radius: 14px !important;
+  background: var(--surface-soft);
 }
 
 :host ::ng-deep .tb-search-field .mat-mdc-form-field-subscript-wrapper {
   display: none;
 }
 
-:host ::ng-deep .tb-search-field .mdc-notched-outline__leading,
-:host ::ng-deep .tb-search-field .mdc-notched-outline__notch,
-:host ::ng-deep .tb-search-field .mdc-notched-outline__trailing {
-  border-color: rgba(0, 0, 0, 0.18) !important;
-}
-
 .tb-spacer {
-  flex: 1;
+  flex: 1 1 auto;
 }
 
-/* RIGHT */
 .tb-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .tb-chip {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-
-  height: 32px;
-  padding: 0 10px;
-  border-radius: 10px;
-
-  background: rgba(0, 0, 0, 0.06);
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
 }
 
 .chip-ic {
   width: 18px;
   height: 18px;
   font-size: 18px;
-  opacity: 0.8;
+  color: var(--muted);
 }
 
 .chip-text {
   font-size: 12px;
-  font-weight: 600;
-  opacity: 0.9;
+  font-weight: 700;
+  color: var(--text);
 }
 
 .tb-user {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-
-  height: 34px;
-  padding: 0 10px;
-  border-radius: 12px;
-
-  background: rgba(0, 0, 0, 0.06);
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.98));
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
   cursor: pointer;
 }
 
 .tb-user:hover {
-  background: rgba(0, 0, 0, 0.10);
+  border-color: var(--border-strong);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
 
 .tb-user-img {
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   border-radius: 999px;
   object-fit: cover;
+  border: 2px solid rgba(79, 70, 229, 0.12);
 }
 
 .tb-user-txt {
@@ -260,35 +215,48 @@
 }
 
 .u2 {
+  margin-top: 2px;
   font-size: 11px;
-  opacity: 0.75;
+  color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .u-chev {
-  opacity: 0.75;
+  color: var(--muted);
 }
 
-/* MENU DROPDOWN */
-:host ::ng-deep .menu-card.mat-mdc-menu-panel {
-  border-radius: 0 !important;
-  padding: 6px !important;
-  min-width: 220px !important;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14) !important;
+.menu-card {
+  border-radius: 14px;
 }
 
-:host ::ng-deep .menu-card .mat-mdc-menu-content {
-  padding: 6px !important;
+@media (max-width: 960px) {
+  .tb-search {
+    width: min(280px, 28vw);
+  }
+
+  .tb-chip {
+    display: none;
+  }
 }
 
-:host ::ng-deep .menu-card .mat-mdc-menu-item {
-  border-radius: 6px !important;
-  margin: 2px 0 !important;
-  min-height: 42px !important;
-}
+@media (max-width: 760px) {
+  .topbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
 
-:host ::ng-deep .menu-card .mat-mdc-menu-item:hover {
-  background: rgba(0, 0, 0, 0.05) !important;
+  .tb-search {
+    display: none;
+  }
+
+  .tb-user-txt,
+  .u-chev {
+    display: none;
+  }
+
+  .page-wrap {
+    padding: 12px;
+  }
 }
