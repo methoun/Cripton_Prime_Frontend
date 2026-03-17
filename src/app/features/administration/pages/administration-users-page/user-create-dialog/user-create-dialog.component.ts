@@ -1,14 +1,24 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { finalize } from 'rxjs';
+import { MatInputModule } from '@angular/material/input';
+import { Observable, finalize } from 'rxjs';
 
 import { AdminUserService } from '../../../services/admin-user.service';
-import { AdminUser, CreateAdminUserPayload } from '../../../models/admin-user.model';
+import {
+  AdminUser,
+  CreateAdminUserPayload,
+  UpdateAdminUserPayload,
+} from '../../../models/admin-user.model';
+
+export interface UserDialogData {
+  mode: 'create' | 'edit';
+  user?: AdminUser;
+}
 
 @Component({
   selector: 'app-user-create-dialog',
@@ -20,6 +30,7 @@ import { AdminUser, CreateAdminUserPayload } from '../../../models/admin-user.mo
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
+    MatCheckboxModule,
   ],
   templateUrl: './user-create-dialog.component.html',
   styleUrls: ['./user-create-dialog.component.scss'],
@@ -28,18 +39,23 @@ import { AdminUser, CreateAdminUserPayload } from '../../../models/admin-user.mo
 export class UserCreateDialogComponent {
   private readonly fb = inject(FormBuilder);
   private readonly adminUsers = inject(AdminUserService);
-  private readonly ref = inject(MatDialogRef<UserCreateDialogComponent, AdminUser | null>);
+  private readonly ref = inject(MatDialogRef<UserCreateDialogComponent, boolean>);
 
   loading = false;
+  readonly isEdit = this.data.mode === 'edit';
 
-  form = this.fb.nonNullable.group({
-    username: ['', [Validators.required]],
-    fullName: ['', [Validators.required]],
-    email: ['', [Validators.required, Validators.email]],
+  readonly form = this.fb.nonNullable.group({
+    username: [this.data.user?.username ?? '', [Validators.required]],
+    email: [this.data.user?.email ?? '', [Validators.required, Validators.email]],
+    role: [this.data.user?.role ?? 'User'],
+    password: ['', this.isEdit ? [] : [Validators.required, Validators.minLength(4)]],
+    isActive: [this.data.user?.isActive ?? true],
   });
 
+  constructor(@Inject(MAT_DIALOG_DATA) public data: UserDialogData) {}
+
   close(): void {
-    this.ref.close(null);
+    this.ref.close(false);
   }
 
   save(): void {
@@ -48,20 +64,37 @@ export class UserCreateDialogComponent {
       return;
     }
 
-    const payload: CreateAdminUserPayload = {
-      username: this.form.controls.username.value.trim(),
-      fullName: this.form.controls.fullName.value.trim(),
-      email: this.form.controls.email.value.trim(),
-    };
-
     this.loading = true;
+    const value = this.form.getRawValue();
 
-    this.adminUsers
-      .create(payload)
-      .pipe(finalize(() => (this.loading = false)))
+    let request$: Observable<unknown>;
+
+    if (this.isEdit) {
+      request$ = this.adminUsers.update(this.data.user!.id, {
+        username: value.username.trim(),
+        email: value.email.trim(),
+        password: value.password.trim() || null,
+        role: value.role?.trim() || null,
+        isActive: value.isActive,
+      } satisfies UpdateAdminUserPayload);
+    } else {
+      request$ = this.adminUsers.create({
+        username: value.username.trim(),
+        email: value.email.trim(),
+        password: value.password.trim(),
+        role: value.role?.trim() || null,
+      } satisfies CreateAdminUserPayload);
+    }
+
+    request$
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+        })
+      )
       .subscribe({
-        next: (created) => this.ref.close(created),
-        error: () => this.ref.close(null),
+        next: () => this.ref.close(true),
+        error: () => this.ref.close(false),
       });
   }
 }

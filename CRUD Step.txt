@@ -1,0 +1,100 @@
+// Step-1: আগে feature folder create করো
+// features/module-name/entity-name/
+// Example: features/administration/users/
+
+// Step-2: Feature এর ভিতরে 4টা folder রাখো
+// models/
+// services/
+// pages/
+// dialogs/
+
+// Step-3: models folder এ 1টা model file রাখো
+// Example: user.model.ts
+// এই file এ রাখবে:
+// - response model
+// - create payload
+// - update payload
+
+// Step-4: services folder এ 1টা feature service রাখো
+// Example: user.service.ts
+// এই service এ থাকবে:
+// - getAll()
+// - getById(id)
+// - create(payload)
+// - update(id, payload)
+// - delete(id)
+
+// Step-5: ApiService সবসময় core এ থাকবে
+// Example: core/services/api.service.ts
+
+// Step-6: Feature service সবসময় feature folder এ থাকবে
+// Example: features/administration/users/services/user.service.ts
+
+// Step-7: Component থেকে direct API call করবে না
+// Component -> FeatureService -> ApiService
+
+// Step-8: pages folder এ list page রাখো
+// Example: user-list-page.component
+// এই page এর কাজ:
+// - list load
+// - search
+// - paginator
+// - open create dialog
+// - open edit dialog
+// - delete action
+
+// Step-9: dialogs folder এ form dialog রাখো
+// Example: user-form-dialog.component
+
+// Step-10: Create + Edit same dialog এ handle করো
+// mode: 'create' | 'edit'
+
+// Step-11: Table এ only business দরকারি column দেখাও
+// GUID id সাধারণত show করবে না
+
+// Step-12: Common table column pattern
+// Name / Email / Role / Status / Actions
+// or entity অনুযায়ী field
+
+// Step-13: Delete এর আগে confirmation নাও
+// window.confirm() বা shared confirm dialog
+
+// Step-14: CRUD শেষে loadData() call করা safest
+// create -> loadData()
+// update -> loadData()
+// delete -> loadData()
+
+// Step-15: Search/filter logic list page এ থাকবে
+// dataSource.filter use করতে পারো
+
+// Step-16: Sort + paginator list page এ থাকবে
+// MatSort + MatPaginator
+
+// Step-17: Form সবসময় Reactive Form এ করো
+// FormBuilder + Validators
+
+// Step-18: Create আর Update payload আলাদা রাখো
+// even যদি same field হয়, future change এর জন্য better
+
+// Step-19: Feature naming same রাখো
+// entity.model.ts
+// entity.service.ts
+// entity-list-page.component.ts
+// entity-form-dialog.component.ts
+
+// Step-20: New page/dialog create করার পরে routes generator run করো
+// npm run routes:gen
+
+// Step-21: তারপর run/test করো
+// ng serve
+
+// Rule-1: ApiService always core এ থাকবে
+// Rule-2: Feature service feature folder এ থাকবে
+// Rule-3: Component direct API call করবে না
+// Rule-4: Create + Edit same dialog এ handle করবে
+// Rule-5: Table এ GUID id show করবে না
+// Rule-6: CRUD শেষে loadData() call safest
+// Rule-7: New page add করলে npm run routes:gen দিবে
+// Rule-8: One feature = model + service + list page + form dialog
+// Rule-9: One model file এ response + create + update রাখতে পারো
+// Rule-10: Structure যত simple থাকবে, manage তত easy হবে

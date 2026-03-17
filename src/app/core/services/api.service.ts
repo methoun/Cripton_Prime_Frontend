@@ -24,6 +24,16 @@ export class ApiService {
     return this.http.post<T>(url, body);
   }
 
+  public put<T>(path: string, body: unknown): Observable<T> {
+    const url = this.buildUrl(path);
+    return this.http.put<T>(url, body);
+  }
+
+  public delete<T>(path: string): Observable<T> {
+    const url = this.buildUrl(path);
+    return this.http.delete<T>(url);
+  }
+
   public postWithHeaders<T>(path: string, body: unknown, headers: HttpHeaders): Observable<T> {
     const url = this.buildUrl(path);
     return this.http.post<T>(url, body, { headers });
