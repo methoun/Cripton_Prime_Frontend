@@ -1,13 +1,19 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { UiButtonComponent, UiCardComponent } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-hrm-dashboard-page',
   standalone: true,
-  imports: [MatCardModule, MatIconModule],
+  imports: [RouterLink, UiButtonComponent, UiCardComponent],
   templateUrl: './hrm-dashboard-page.component.html',
   styleUrl: './hrm-dashboard-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HrmDashboardPageComponent {}
+export class HrmDashboardPageComponent {
+  readonly stats = [
+    { label: 'Employees', value: '246' },
+    { label: 'Attendance today', value: '92%' },
+    { label: 'Open leave requests', value: '11' },
+  ];
+}

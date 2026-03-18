@@ -2,10 +2,7 @@ import { ChangeDetectionStrategy, Component, Inject, inject } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { Observable, finalize } from 'rxjs';
 
 import { AdminUserService } from '../../../services/admin-user.service';
@@ -14,6 +11,7 @@ import {
   CreateAdminUserPayload,
   UpdateAdminUserPayload,
 } from '../../../models/admin-user.model';
+import { UiDynamicFormComponent, UiFormField } from '../../../../../shared/ui';
 
 export interface UserDialogData {
   mode: 'create' | 'edit';
@@ -23,15 +21,7 @@ export interface UserDialogData {
 @Component({
   selector: 'app-user-create-dialog',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatCheckboxModule,
-  ],
+  imports: [ReactiveFormsModule, MatDialogModule, MatButtonModule, MatIconModule, UiDynamicFormComponent],
   templateUrl: './user-create-dialog.component.html',
   styleUrls: ['./user-create-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,6 +41,18 @@ export class UserCreateDialogComponent {
     password: ['', this.isEdit ? [] : [Validators.required, Validators.minLength(4)]],
     isActive: [this.data.user?.isActive ?? true],
   });
+
+  readonly fields: UiFormField[] = [
+    { key: 'username', label: 'Username', type: 'text', placeholder: 'Enter username' },
+    { key: 'email', label: 'Email', type: 'email', placeholder: 'Enter email address' },
+    { key: 'role', label: 'Role', type: 'select', options: [
+      { label: 'Admin', value: 'Admin' },
+      { label: 'User', value: 'User' },
+      { label: 'Manager', value: 'Manager' },
+    ] },
+    { key: 'password', label: this.isEdit ? 'Password (optional)' : 'Password', type: 'password', placeholder: 'Enter password' },
+    ...(this.isEdit ? [{ key: 'isActive', label: 'Active user', type: 'toggle' as const }] : []),
+  ];
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: UserDialogData) {}
 
@@ -87,11 +89,7 @@ export class UserCreateDialogComponent {
     }
 
     request$
-      .pipe(
-        finalize(() => {
-          this.loading = false;
-        })
-      )
+      .pipe(finalize(() => { this.loading = false; }))
       .subscribe({
         next: () => this.ref.close(true),
         error: () => this.ref.close(false),

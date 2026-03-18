@@ -1,8 +1,48 @@
-<mat-card class="dash">
-  <div class="icon-wrap"><mat-icon>dashboard_customize</mat-icon></div>
-  <div class="content">
-    <div class="eyebrow">Administration</div>
-    <div class="h">Administration Dashboard</div>
-    <div class="p">Welcome to {{ (activeModule$ | async)?.name ?? 'Administration' }} module. Use the sidebar to manage setup, users and permissions.</div>
-  </div>
-</mat-card>
+<div class='dashboard'>
+  <section class='hero erp-surface'>
+    <div class='hero__content'>
+      <div class='hero__eyebrow'>Administration</div>
+      <h1>Administration Dashboard</h1>
+      <p>Welcome to {{ (activeModule$ | async)?.name ?? 'Administration' }}. Monitor setup, users, permissions and operational health from a cleaner dashboard.</p>
+      <div class='hero__actions'>
+        <ui-button label='Open users' icon='groups' routerLink='/admin/user-setup/user-list'></ui-button>
+        <ui-button uiCan='/admin/user-setup/user-list' label='Manage permissions' icon='shield' variant='stroked'></ui-button>
+      </div>
+    </div>
+    <div class='hero__badge'>ERP Control Center</div>
+  </section>
+
+  <section class='stats'>
+    @for (card of statCards; track card.label) {
+      <ui-card>
+        <div class='stat-card'>
+          <div>
+            <div class='stat-card__label'>{{ card.label }}</div>
+            <div class='stat-card__value'>{{ card.value }}</div>
+          </div>
+          <div class='stat-card__icon stat-card__icon--{{ card.tone }}'>{{ card.icon }}</div>
+        </div>
+      </ui-card>
+    }
+  </section>
+
+  <section class='dashboard-grid'>
+    <ui-card title='Quick actions' subtitle='Common administration tasks'>
+      <div class='quick-links'>
+        <a routerLink='/admin/user-setup/user-list'>User list</a>
+        <a routerLink='/admin'>Module landing</a>
+        <a routerLink='/admin/user-setup/user-list'>Role assignment</a>
+        <a routerLink='/admin/user-setup/user-list'>Access review</a>
+      </div>
+    </ui-card>
+
+    <ui-card title='System summary' subtitle='Reusable dashboard block for ERP modules'>
+      <div class='summary-list'>
+        <div><span>Auth</span><strong>Healthy</strong></div>
+        <div><span>Permissions cache</span><strong>Synced</strong></div>
+        <div><span>Last audit</span><strong>Today</strong></div>
+        <div><span>Pending approvals</span><strong>7 items</strong></div>
+      </div>
+    </ui-card>
+  </section>
+</div>

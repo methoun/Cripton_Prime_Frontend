@@ -1,82 +1,85 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  ViewChild,
-  inject,
-} from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 import { AdminUser } from '../../models/admin-user.model';
 import { AdminUserService } from '../../services/admin-user.service';
 import { UserCreateDialogComponent } from './user-create-dialog/user-create-dialog.component';
+import {
+  UiConfirmDialogComponent,
+  UiTableAction,
+  UiTableColumn,
+  UiTableComponent,
+} from '../../../../shared/ui';
 
 export const DB_ROUTE = '/admin/user-setup/user-list';
 
 @Component({
   selector: 'app-administration-users-page',
   standalone: true,
-  imports: [
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSnackBarModule,
-    MatDialogModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatFormFieldModule,
-    MatInputModule,
-  ],
+  imports: [UiTableComponent, MatSnackBarModule, MatDialogModule, MatButtonModule, MatIconModule],
   templateUrl: './administration-users-page.component.html',
   styleUrls: ['./administration-users-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AdministrationUsersPageComponent implements OnInit, AfterViewInit {
+export class AdministrationUsersPageComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snack = inject(MatSnackBar);
   private readonly adminUsers = inject(AdminUserService);
 
-  readonly displayedColumns: string[] = ['username', 'email', 'role', 'status', 'actions'];
-  readonly dataSource = new MatTableDataSource<AdminUser>([]);
   loading = false;
+  rows: AdminUser[] = [];
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  readonly rowActions: UiTableAction<AdminUser>[] = [
+    {
+      icon: 'edit',
+      label: 'Edit user',
+      color: 'primary',
+      onClick: (row: AdminUser) => this.editUser(row),
+    },
+    {
+      icon: 'delete',
+      label: 'Delete user',
+      color: 'warn',
+      onClick: (row: AdminUser) => this.deleteUser(row),
+    },
+  ];
+
+  readonly columns: UiTableColumn<AdminUser>[] = [
+    { key: 'username', header: 'Username', value: (row: AdminUser) => row.username, width: '22%' },
+    { key: 'email', header: 'Email', value: (row: AdminUser) => row.email, kind: 'email', width: '30%' },
+    { key: 'role', header: 'Role', value: (row: AdminUser) => row.role || '-', kind: 'role', width: '16%' },
+    {
+      key: 'status',
+      header: 'Status',
+      value: (row: AdminUser) => (row.isActive ? 'Active' : 'Inactive'),
+      kind: 'status',
+      sortable: false,
+      width: '14%',
+      statusResolver: (row: AdminUser) => !!row.isActive,
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      kind: 'actions',
+      sortable: false,
+      align: 'center',
+      width: '12%',
+      actions: this.rowActions,
+    },
+  ];
 
   ngOnInit(): void {
     this.loadUsers();
   }
 
-  ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-    this.dataSource.filterPredicate = (user: AdminUser, filter: string): boolean => {
-      const value = filter.trim().toLowerCase();
-      return (
-        String(user.username ?? '').toLowerCase().includes(value) ||
-        String(user.email ?? '').toLowerCase().includes(value) ||
-        String(user.role ?? '').toLowerCase().includes(value) ||
-        (user.isActive ? 'active' : 'inactive').includes(value)
-      );
-    };
-  }
-
   loadUsers(): void {
     this.loading = true;
     this.adminUsers.getAll().subscribe({
-      next: (users) => {
-        this.dataSource.data = users;
+      next: (users: AdminUser[]) => {
+        this.rows = users;
         this.loading = false;
       },
       error: () => {
@@ -117,23 +120,29 @@ export class AdministrationUsersPageComponent implements OnInit, AfterViewInit {
   }
 
   deleteUser(user: AdminUser): void {
-    const confirmed = window.confirm(`Delete user "${user.username}"?`);
-    if (!confirmed) return;
-
-    this.adminUsers.delete(user.id).subscribe({
-      next: () => {
-        this.dataSource.data = this.dataSource.data.filter((x) => x.id !== user.id);
-        this.snack.open('User deleted successfully', 'OK', { duration: 2500 });
-      },
-      error: () => {
-        this.snack.open('Failed to delete user', 'OK', { duration: 2500 });
+    const ref = this.dialog.open(UiConfirmDialogComponent, {
+      width: '420px',
+      maxWidth: '92vw',
+      data: {
+        title: 'Delete user',
+        message: `Are you sure you want to delete "${user.username}"?`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        danger: true,
       },
     });
-  }
 
-  applyFilter(event: Event): void {
-    const value = (event.target as HTMLInputElement).value ?? '';
-    this.dataSource.filter = value.trim().toLowerCase();
-    this.paginator?.firstPage();
+    ref.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      this.adminUsers.delete(user.id).subscribe({
+        next: () => {
+          this.rows = this.rows.filter((x) => x.id !== user.id);
+          this.snack.open('User deleted successfully', 'OK', { duration: 2500 });
+        },
+        error: () => {
+          this.snack.open('Failed to delete user', 'OK', { duration: 2500 });
+        },
+      });
+    });
   }
 }

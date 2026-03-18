@@ -1,8 +1,24 @@
-<mat-card class="dash">
-  <div class="icon-wrap"><mat-icon>payments</mat-icon></div>
-  <div class="content">
-    <div class="eyebrow">Payroll</div>
-    <div class="h">Payroll Dashboard</div>
-    <div class="p">Payroll module home screen for salary processing and approvals.</div>
+<div class='dash-board'>
+  <section class='dash-hero erp-surface'>
+    <div>
+      <div class='dash-eyebrow'>Payroll</div>
+      <h1>Payroll Dashboard</h1>
+      <p>Run payroll, review approvals and monitor monthly processing from a compact reusable ERP surface.</p>
+      <div class='dash-actions'>
+        <ui-button label='Run payroll' icon='payments'></ui-button>
+        <ui-button label='Approvals' icon='task_alt' variant='stroked'></ui-button>
+      </div>
+    </div>
+  </section>
+
+  <div class='dash-stats'>
+    @for (item of stats; track item.label) {
+      <ui-card>
+        <div class='mini-stat'>
+          <div class='mini-stat__label'>{{ item.label }}</div>
+          <div class='mini-stat__value'>{{ item.value }}</div>
+        </div>
+      </ui-card>
+    }
   </div>
-</mat-card>
+</div>

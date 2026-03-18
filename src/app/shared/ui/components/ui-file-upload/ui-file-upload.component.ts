@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, Output, ViewChild, ElementRef } from '@angular/core';
-import { UI_IMPORTS } from '../../ui-imports';
+import { CommonModule } from '@angular/common';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { UiButtonComponent } from '../ui-button/ui-button.component';
 
 @Component({
   selector: 'ui-file-upload',
   standalone: true,
-  imports: [...UI_IMPORTS],
+  imports: [CommonModule, UiButtonComponent],
   templateUrl: './ui-file-upload.component.html',
   styleUrls: ['./ui-file-upload.component.scss'],
 })
@@ -18,12 +19,12 @@ export class UiFileUploadComponent {
 
   @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
 
-  openPicker() {
+  openPicker(): void {
     if (this.disabled) return;
     this.fileInput?.nativeElement?.click();
   }
 
-  onChange(list: FileList | null) {
+  onChange(list: FileList | null): void {
     if (!list || list.length === 0) return;
     this.filesSelected.emit(list);
   }

@@ -1,8 +1,24 @@
-<mat-card class="dash">
-  <div class="icon-wrap"><mat-icon>groups</mat-icon></div>
-  <div class="content">
-    <div class="eyebrow">Human Resource</div>
-    <div class="h">HRM Dashboard</div>
-    <div class="p">HRM module home screen with workforce and attendance insights.</div>
+<div class='dash-board'>
+  <section class='dash-hero erp-surface'>
+    <div>
+      <div class='dash-eyebrow'>Human Resource</div>
+      <h1>HRM Dashboard</h1>
+      <p>Track workforce, attendance and leave operations from a compact reusable module dashboard.</p>
+      <div class='dash-actions'>
+        <ui-button label='Employees' icon='groups' routerLink='/hrm'></ui-button>
+        <ui-button label='Attendance' icon='schedule' variant='stroked'></ui-button>
+      </div>
+    </div>
+  </section>
+
+  <div class='dash-stats'>
+    @for (item of stats; track item.label) {
+      <ui-card>
+        <div class='mini-stat'>
+          <div class='mini-stat__label'>{{ item.label }}</div>
+          <div class='mini-stat__value'>{{ item.value }}</div>
+        </div>
+      </ui-card>
+    }
   </div>
-</mat-card>
+</div>

@@ -1,0 +1,16 @@
+
+> cripton-prime@1.0.0 prebuild
+> npm run routes:gen
+
+
+> cripton-prime@1.0.0 routes:gen
+> node tools/generate-routes.js
+
+✅ routes.generated.ts created
+✅ total routes: 1
+📄 /tmp/srcfix/src/app/core/routing/routes.generated.ts
+
+> cripton-prime@1.0.0 build
+> ng build
+
+sh: 1: ng: not found

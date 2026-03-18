@@ -1,10 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { UI_IMPORTS } from '../../ui-imports';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'ui-empty',
   standalone: true,
-  imports: [...UI_IMPORTS],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './ui-empty.component.html',
   styleUrls: ['./ui-empty.component.scss'],
 })

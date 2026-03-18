@@ -1,47 +1,16 @@
-<div class="dlg">
-  <div class="dlg__title">
+<div class='dlg'>
+  <div class='dlg__title'>
     <mat-icon>{{ isEdit ? 'edit' : 'person_add' }}</mat-icon>
     <span>{{ isEdit ? 'Edit User' : 'Create User' }}</span>
   </div>
 
-  <form class="dlg__body" [formGroup]="form">
-    <mat-form-field appearance="outline">
-      <mat-label>Username</mat-label>
-      <input matInput formControlName="username" />
-      @if (form.controls.username.touched && form.controls.username.invalid) {
-        <mat-error>Username is required</mat-error>
-      }
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Email</mat-label>
-      <input matInput formControlName="email" />
-      @if (form.controls.email.touched && form.controls.email.invalid) {
-        <mat-error>Enter a valid email</mat-error>
-      }
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Role</mat-label>
-      <input matInput formControlName="role" />
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ isEdit ? 'Password (optional)' : 'Password' }}</mat-label>
-      <input matInput type="password" formControlName="password" />
-      @if (form.controls.password.touched && form.controls.password.invalid) {
-        <mat-error>{{ isEdit ? 'Minimum 4 characters if provided' : 'Password is required (min 4 characters)' }}</mat-error>
-      }
-    </mat-form-field>
-
-    @if (isEdit) {
-      <mat-checkbox formControlName="isActive">Active user</mat-checkbox>
-    }
+  <form class='dlg__body' [formGroup]='form'>
+    <ui-dynamic-form [formGroup]='form' [fields]='fields'></ui-dynamic-form>
   </form>
 
-  <div class="dlg__actions">
-    <button mat-stroked-button (click)="close()">Cancel</button>
-    <button mat-flat-button color="primary" (click)="save()" [disabled]="loading">
+  <div class='dlg__actions'>
+    <button mat-stroked-button (click)='close()'>Cancel</button>
+    <button mat-flat-button color='primary' (click)='save()' [disabled]='loading'>
       {{ loading ? 'Saving...' : (isEdit ? 'Update' : 'Create') }}
     </button>
   </div>

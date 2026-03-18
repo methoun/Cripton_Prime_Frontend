@@ -78,6 +78,14 @@ export class PermissionStateService {
     return this.modulesSubject.value;
   }
 
+  getMenusByModuleIdSnapshot(): Record<number, CriptonMenuDto[]> {
+    return this.menusByModuleIdSubject.value;
+  }
+
+  getActiveModuleIdSnapshot(): number | null {
+    return this.activeModuleIdSubject.value;
+  }
+
   clearAll(): void {
     this.modulesSubject.next([]);
     this.menusByModuleIdSubject.next({});
