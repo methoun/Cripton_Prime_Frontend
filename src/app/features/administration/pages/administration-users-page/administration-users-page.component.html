@@ -1,20 +1,36 @@
 <div class="users-page">
   <div class="page-shell">
-    <ui-table
-      [columns]="columns"
-      [rows]="rows"
-      [loading]="loading"
-      [searchEnabled]="true"
-      searchPlaceholder="Search user"
-      emptyTitle="No users found"
-      emptySubtitle="Create a user or adjust your search."
-    >
-      <div tableActions>
-        <button mat-flat-button color="primary" (click)="openCreateDialog()">
-          <mat-icon>person_add</mat-icon>
-          Add User
-        </button>
+    <div class="page-head">
+      <div class="page-head__left">
+        <div class="title-wrap"></div>
       </div>
+
+      <div class="page-head__right">
+        <ui-button
+          label="Add User"
+          icon="person_add"
+          variant="flat"
+          color="primary"
+          (click)="openCreateDialog()"
+        ></ui-button>
+      </div>
+    </div>
+
+    <ui-table
+      [title]="'Users'"
+      [data]="rows"
+      [columns]="columns"
+      [actions]="rowActions"
+      [loading]="loading"
+      [enableSearch]="true"
+      [pageSize]="25"
+      [pageSizeOptions]="[25, 50, 100]"
+      [searchLabel]="'Search users'"
+      [searchPlaceholder]="'Search by username, email, role or status'"
+      [emptyTitle]="'No users found'"
+      [emptyDescription]="'Create a user or adjust your search filter.'"
+      (actionClick)="onTableAction($event)"
+    >
     </ui-table>
   </div>
 </div>

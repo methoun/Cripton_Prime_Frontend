@@ -3,7 +3,7 @@
     <div class="ui-page__heading">
       <h1 class="ui-page__title">{{ title }}</h1>
       @if (subtitle) { <p class="ui-page__subtitle">{{ subtitle }}</p> }
-      @if (meta?.length) {
+      @if (meta.length) {
         <div class="ui-page__meta">
           <mat-chip-set>
             @for (m of meta; track m) { <mat-chip>{{ m }}</mat-chip> }

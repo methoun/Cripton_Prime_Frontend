@@ -5,7 +5,7 @@ import { UiButtonComponent, UiCardComponent } from '../../../../shared/ui';
 @Component({
   selector: 'app-prl-dashboard-page',
   standalone: true,
-  imports: [RouterLink, UiButtonComponent, UiCardComponent],
+  imports: [UiButtonComponent, UiCardComponent],
   templateUrl: './prl-dashboard-page.component.html',
   styleUrl: './prl-dashboard-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
