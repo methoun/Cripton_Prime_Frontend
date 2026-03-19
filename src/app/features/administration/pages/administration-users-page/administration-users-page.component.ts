@@ -51,39 +51,32 @@ export class AdministrationUsersPageComponent implements OnInit {
   ];
 
   readonly columns: UiTableColumn<AdminUser>[] = [
-    {
-      key: 'username',
-      header: 'Username',
-      type: 'text',
-      width: '22%',
-      formatter: (row: AdminUser) => row.username ?? '',
-    },
-    {
-      key: 'email',
-      header: 'Email',
-      type: 'text',
-      width: '30%',
-      formatter: (row: AdminUser) => row.email ?? '',
-    },
-    {
-      key: 'role',
-      header: 'Role',
-      type: 'text',
-      width: '16%',
-      formatter: (row: AdminUser) => row.role || '-',
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      type: 'chip',
-      width: '14%',
-      formatter: (row: AdminUser) => (row.isActive ? 'Active' : 'Inactive'),
-      chipConfig: (row: AdminUser) => ({
-        color: row.isActive ? 'primary' : 'warn',
-        highlighted: true,
-      }),
-    },
-  ];
+  {
+    key: 'username',
+    header: 'User Name',
+    width: '22%',
+    formatter: (row: AdminUser) => row.username ?? '',
+  },
+  {
+    key: 'email',
+    header: 'Email',
+    width: '30%',
+    formatter: (row: AdminUser) => row.email ?? '',
+  },
+  {
+    key: 'role',
+    header: 'Role',
+    width: '16%',
+    formatter: (row: AdminUser) => row.role || '-',
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    width: '14%',
+    formatter: (row: AdminUser) => (row.isActive ? 'Active' : 'Inactive'),
+  },
+];
+  
 
   ngOnInit(): void {
     this.loadUsers();
