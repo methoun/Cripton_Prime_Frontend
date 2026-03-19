@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 import { AdminUser } from '../../models/admin-user.model';
 import { AdminUserService } from '../../services/admin-user.service';
@@ -18,7 +20,13 @@ export const DB_ROUTE = '/admin/user-setup/user-list';
 @Component({
   selector: 'app-administration-users-page',
   standalone: true,
-  imports: [UiTableComponent, UiButtonComponent, MatSnackBarModule],
+  imports: [
+    UiTableComponent,
+    UiButtonComponent,
+    MatSnackBarModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
   templateUrl: './administration-users-page.component.html',
   styleUrls: ['./administration-users-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,32 +59,35 @@ export class AdministrationUsersPageComponent implements OnInit {
   ];
 
   readonly columns: UiTableColumn<AdminUser>[] = [
-  {
-    key: 'username',
-    header: 'User Name',
-    width: '22%',
-    formatter: (row: AdminUser) => row.username ?? '',
-  },
-  {
-    key: 'email',
-    header: 'Email',
-    width: '30%',
-    formatter: (row: AdminUser) => row.email ?? '',
-  },
-  {
-    key: 'role',
-    header: 'Role',
-    width: '16%',
-    formatter: (row: AdminUser) => row.role || '-',
-  },
-  {
-    key: 'status',
-    header: 'Status',
-    width: '14%',
-    formatter: (row: AdminUser) => (row.isActive ? 'Active' : 'Inactive'),
-  },
-];
-  
+    {
+      key: 'username',
+      header: 'User Name',
+      sortable: true,
+      width: '22%',
+      formatter: (row: AdminUser) => row.username ?? '',
+    },
+    {
+      key: 'email',
+      header: 'Email',
+      sortable: true,
+      width: '30%',
+      formatter: (row: AdminUser) => row.email ?? '',
+    },
+    {
+      key: 'role',
+      header: 'Role',
+      sortable: true,
+      width: '16%',
+      formatter: (row: AdminUser) => row.role || '-',
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      width: '14%',
+      formatter: (row: AdminUser) => (row.isActive ? 'Active' : 'Inactive'),
+    },
+  ];
 
   ngOnInit(): void {
     this.loadUsers();

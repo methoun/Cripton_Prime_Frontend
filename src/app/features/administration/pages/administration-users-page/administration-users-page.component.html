@@ -16,13 +16,15 @@
       </div>
     </div>
 
-    <ui-table
-      [title]="'Users'"
+   <ui-table
+      [title]="''"
       [data]="rows"
       [columns]="columns"
       [actions]="rowActions"
       [loading]="loading"
       [searchEnabled]="true"
+      [enableExport]="true"
+      [exportFileName]="'users'"
       [pageSize]="25"
       [pageSizeOptions]="[25, 50, 100]"
       [searchLabel]="'Search users'"
@@ -31,6 +33,16 @@
       [emptyDescription]="'Create a user or adjust your search filter.'"
       (actionClick)="onTableAction($event)"
     >
-    </ui-table>
+      <button
+        table-left-actions
+        mat-stroked-button
+        type="button"
+        class="ui-table__export-btn"
+        (click)="loadUsers()"
+      >
+    <mat-icon>refresh</mat-icon>
+    <span>Refresh</span>
+  </button>
+</ui-table>
   </div>
 </div>

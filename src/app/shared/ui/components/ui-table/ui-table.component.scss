@@ -460,3 +460,77 @@ mat-paginator {
 mat-paginator {
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
+.ui-table__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ui-table__toolbar-left,
+.ui-table__toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.ui-table__toolbar-right {
+  margin-left: auto;
+}
+
+.ui-table__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.ui-table__export-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ui-table__export-btn {
+  min-height: 36px;
+}
+
+.ui-table__export-btn .mat-icon {
+  margin-right: 4px;
+}
+
+.ui-table__search {
+  position: relative;
+  width: 320px;
+  max-width: 100%;
+}
+
+.ui-table__search-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 42px 0 14px;
+  border: 1px solid #cfd7e6;
+  border-radius: 8px;
+  outline: none;
+  font-size: 13px;
+  background: #fff;
+}
+
+.ui-table__search-btn,
+.ui-table__search-icon {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ui-table__search-btn {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}

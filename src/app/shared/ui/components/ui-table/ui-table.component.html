@@ -1,7 +1,31 @@
 <div class="ui-table">
-  <div class="ui-table__toolbar" *ngIf="title || searchEnabled">
+  <div class="ui-table__toolbar" *ngIf="title || searchEnabled || enableExport">
     <div class="ui-table__toolbar-left">
       <h3 class="ui-table__title" *ngIf="title">{{ title }}</h3>
+
+      <div class="ui-table__export-actions" *ngIf="enableExport">
+        <button
+          mat-stroked-button
+          type="button"
+          class="ui-table__export-btn"
+          (click)="exportCsv()"
+        >
+          <mat-icon>download</mat-icon>
+          <span>CSV</span>
+        </button>
+
+        <button
+          mat-stroked-button
+          type="button"
+          class="ui-table__export-btn"
+          (click)="exportExcel()"
+        >
+          <mat-icon>table_view</mat-icon>
+          <span>Excel</span>
+        </button>
+      </div>
+
+      <ng-content select="[table-left-actions]"></ng-content>
     </div>
 
     <div class="ui-table__toolbar-right">
@@ -36,7 +60,7 @@
 
   <div class="ui-table__card">
     <div class="ui-table__table-wrap" [class.is-loading]="loading">
-      <table mat-table [dataSource]="dataSource" class="ui-table__table">
+      <table mat-table matSort [dataSource]="dataSource" class="ui-table__table">
         <ng-container
           *ngFor="let column of getVisibleColumns(); trackBy: trackByColumn"
           [matColumnDef]="getColumnName(column)"
@@ -47,7 +71,15 @@
             [style.width]="column.width || null"
             [class]="column.headerClass || ''"
           >
-            {{ column.header }}
+            <ng-container *ngIf="isColumnSortable(column); else plainHeader">
+              <div [mat-sort-header]="getColumnName(column)">
+                {{ column.header }}
+              </div>
+            </ng-container>
+
+            <ng-template #plainHeader>
+              {{ column.header }}
+            </ng-template>
           </th>
 
           <td
@@ -86,7 +118,7 @@
           </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns" class="ui-table__row"></tr>
       </table>
 

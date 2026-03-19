@@ -13,50 +13,39 @@ import { CommonModule } from '@angular/common';
 
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 
-export type UiTableCellValue = string | number | Date | null | undefined;
-export type UiTableColumnType = 'text' | 'number' | 'date' | 'datetime' | 'chip';
+import * as XLSX from 'xlsx';
 
-export interface UiTableChipConfig {
-  color?: 'primary' | 'accent' | 'warn';
-}
+export type UiTableCellValue = string | number | boolean | Date | null | undefined;
 
-export interface UiTableColumn<T = unknown> {
-  key: string;
+export interface UiTableColumn<T> {
+  key: keyof T | string;
   header: string;
-  type?: UiTableColumnType;
-  kind?: 'text' | 'email' | 'role' | 'status' | 'actions';
   hidden?: boolean;
   searchable?: boolean;
   sortable?: boolean;
   width?: string;
-  align?: 'start' | 'center' | 'end';
   headerClass?: string;
   cellClass?: string;
   formatter?: (row: T) => UiTableCellValue;
-  value?: (row: T) => UiTableCellValue;
   cell?: (row: T) => UiTableCellValue;
-  chipConfig?: (row: T) => UiTableChipConfig;
-  statusResolver?: (row: T) => boolean;
+  value?: (row: T) => UiTableCellValue;
 }
 
-export interface UiTableAction<T = unknown> {
+export interface UiTableAction<T> {
   key?: string;
   label: string;
   icon?: string;
   color?: 'primary' | 'accent' | 'warn';
   variant?: 'icon' | 'stroked' | 'flat';
   tooltip?: string;
-  onClick?: (row: T) => void;
   hidden?: (row: T) => boolean;
-  visible?: (row: T) => boolean;
   disabled?: (row: T) => boolean;
+  onClick?: (row: T) => void;
 }
 
 @Component({
@@ -66,39 +55,39 @@ export interface UiTableAction<T = unknown> {
     CommonModule,
     MatTableModule,
     MatPaginatorModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressBarModule,
     MatTooltipModule,
+    MatSortModule,
   ],
   templateUrl: './ui-table.component.html',
   styleUrls: ['./ui-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UiTableComponent<T = unknown> implements OnChanges, AfterViewInit {
+export class UiTableComponent<T extends object> implements OnChanges, AfterViewInit {
   @ViewChild(MatPaginator) paginator?: MatPaginator;
+  @ViewChild(MatSort) sort?: MatSort;
 
   @Input() data: readonly T[] = [];
   @Input() rows: readonly T[] = [];
   @Input() columns: readonly UiTableColumn<T>[] = [];
   @Input() actions: readonly UiTableAction<T>[] = [];
-  @Input() loading = false;
 
+  @Input() loading = false;
   @Input() title = '';
-  @Input() enableSearch = true;
   @Input() searchEnabled = true;
   @Input() searchLabel = 'Search';
   @Input() searchPlaceholder = 'Search...';
-
   @Input() emptyTitle = 'No data found';
   @Input() emptyDescription = 'There are no records to display.';
-  @Input() emptySubtitle = 'There are no records to display.';
-
+  @Input() emptySubtitle = '';
   @Input() pageSize = 10;
   @Input() pageSizeOptions: number[] = [10, 25, 50, 100];
   @Input() showFirstLastButtons = true;
+
+  // optional new features
+  @Input() enableExport = false;
+  @Input() exportFileName = 'table-data';
 
   @Output() actionClick = new EventEmitter<{ action: UiTableAction<T>; row: T }>();
   @Output() searchChange = new EventEmitter<string>();
@@ -110,26 +99,15 @@ export class UiTableComponent<T = unknown> implements OnChanges, AfterViewInit {
   searchTerm = '';
   displayedColumns: string[] = [];
 
-  get resolvedRows(): readonly T[] {
-    return this.data.length > 0 ? this.data : this.rows;
-  }
-
-  get resolvedEnableSearch(): boolean {
-    return this.enableSearch || this.searchEnabled;
-  }
-
-  get resolvedEmptyDescription(): string {
-    return this.emptyDescription || this.emptySubtitle;
-  }
-
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['columns'] || changes['actions']) {
       this.refreshDisplayedColumns();
       this.configureFilter();
+      this.configureSorting();
     }
 
     if (changes['data'] || changes['rows']) {
-      this.dataSource.data = [...this.resolvedRows];
+      this.dataSource.data = [...this.getInputRows()];
       this.applyFilter(this.searchTerm);
     }
 
@@ -144,30 +122,37 @@ export class UiTableComponent<T = unknown> implements OnChanges, AfterViewInit {
       this.paginator.pageSize = this.pageSize;
     }
 
-    this.configureFilter();
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
+    }
+
     this.refreshDisplayedColumns();
-    this.dataSource.data = [...this.resolvedRows];
+    this.configureFilter();
+    this.configureSorting();
     this.applyFilter(this.searchTerm);
   }
 
-  trackByColumn = (_index: number, column: UiTableColumn<T>): string => this.getColumnName(column);
+  trackByColumn = (_index: number, column: UiTableColumn<T>): string =>
+    this.getColumnName(column);
 
-  trackByAction = (index: number, action: UiTableAction<T>): string => action.key ?? `${action.label}-${index}`;
+  trackByAction = (index: number, action: UiTableAction<T>): string =>
+    action.key ?? action.label ?? String(index);
 
   getVisibleColumns(): UiTableColumn<T>[] {
-    return this.columns.filter((column) => !column.hidden && column.key !== 'actions' && column.kind !== 'actions');
+    return this.columns.filter((column) => !column.hidden);
   }
 
   getColumnName(column: UiTableColumn<T>): string {
     return String(column.key);
   }
 
-  isActionsColumnVisible(): boolean {
-    return this.actions.length > 0;
+  isColumnSortable(column: UiTableColumn<T>): boolean {
+    return column.sortable === true;
   }
 
   onSearchInput(event: Event): void {
-    const value = (event.target as HTMLInputElement | null)?.value ?? '';
+    const input = event.target as HTMLInputElement | null;
+    const value = input?.value ?? '';
     this.searchTerm = value;
     this.applyFilter(value);
     this.searchChange.emit(value.trim());
@@ -179,6 +164,18 @@ export class UiTableComponent<T = unknown> implements OnChanges, AfterViewInit {
     this.searchChange.emit('');
   }
 
+  onPage(event: PageEvent): void {
+    this.pageChange.emit(event);
+  }
+
+  isActionHidden(action: UiTableAction<T>, row: T): boolean {
+    return action.hidden?.(row) ?? false;
+  }
+
+  isActionDisabled(action: UiTableAction<T>, row: T): boolean {
+    return action.disabled?.(row) ?? false;
+  }
+
   onAction(action: UiTableAction<T>, row: T): void {
     if (this.isActionDisabled(action, row)) {
       return;
@@ -188,62 +185,75 @@ export class UiTableComponent<T = unknown> implements OnChanges, AfterViewInit {
     this.actionClick.emit({ action, row });
   }
 
-  onPage(event: PageEvent): void {
-    this.pageChange.emit(event);
-  }
-
-  isActionHidden(action: UiTableAction<T>, row: T): boolean {
-    if (action.hidden) {
-      return action.hidden(row);
-    }
-    if (action.visible) {
-      return !action.visible(row);
-    }
-    return false;
-  }
-
-  isActionDisabled(action: UiTableAction<T>, row: T): boolean {
-    return action.disabled?.(row) ?? false;
-  }
-
   getCellValue(row: T, column: UiTableColumn<T>): UiTableCellValue {
     if (column.formatter) {
       return column.formatter(row);
     }
-    if (column.value) {
-      return column.value(row);
-    }
+
     if (column.cell) {
       return column.cell(row);
     }
-    return this.readRowValue(row, column.key);
-  }
 
-  getDateCellValue(row: T, column: UiTableColumn<T>): string | number | Date | null | undefined {
-    const value = this.getCellValue(row, column);
-    if (typeof value === 'string' || typeof value === 'number' || value instanceof Date || value == null) {
-      return value;
+    if (column.value) {
+      return column.value(row);
     }
-    return undefined;
-  }
 
-  getChipClass(row: T, column: UiTableColumn<T>): string {
-    const config = column.chipConfig?.(row);
-    switch (config?.color) {
-      case 'warn':
-        return 'ui-table__badge ui-table__badge--warn';
-      case 'accent':
-        return 'ui-table__badge ui-table__badge--accent';
-      default:
-        return 'ui-table__badge ui-table__badge--primary';
+    const key = column.key as keyof T;
+    const rawValue = row[key] as unknown;
+
+    if (
+      rawValue === null ||
+      rawValue === undefined ||
+      typeof rawValue === 'string' ||
+      typeof rawValue === 'number' ||
+      typeof rawValue === 'boolean' ||
+      rawValue instanceof Date
+    ) {
+      return rawValue;
     }
+
+    return String(rawValue);
   }
 
-  private refreshDisplayedColumns(): void {
-    const visibleColumnNames = this.getVisibleColumns().map((column) => this.getColumnName(column));
-    this.displayedColumns = this.isActionsColumnVisible()
-      ? [...visibleColumnNames, this.actionsColumnKey]
-      : visibleColumnNames;
+  exportCsv(): void {
+    const exportRows = this.getExportRows();
+    const visibleColumns = this.getVisibleColumns();
+
+    const headers = visibleColumns.map((column) => column.header);
+    const csvRows: string[] = [];
+
+    csvRows.push(headers.map((value) => this.escapeCsv(value)).join(','));
+
+    exportRows.forEach((row) => {
+      const values = visibleColumns.map((column) =>
+        this.escapeCsv(this.formatExportValue(this.getCellValue(row, column)))
+      );
+      csvRows.push(values.join(','));
+    });
+
+    const csvContent = '\ufeff' + csvRows.join('\n');
+    this.downloadBlob(csvContent, `${this.exportFileName}.csv`, 'text/csv;charset=utf-8;');
+  }
+
+  exportExcel(): void {
+    const exportRows = this.getExportRows();
+    const visibleColumns = this.getVisibleColumns();
+
+    const sheetData = exportRows.map((row) => {
+      const record: Record<string, string | number | boolean | Date | null> = {};
+
+      visibleColumns.forEach((column) => {
+        record[column.header] = this.normalizeExcelValue(this.getCellValue(row, column));
+      });
+
+      return record;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(sheetData);
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
+    XLSX.writeFile(workbook, `${this.exportFileName}.xlsx`);
   }
 
   private configureFilter(): void {
@@ -256,7 +266,38 @@ export class UiTableComponent<T = unknown> implements OnChanges, AfterViewInit {
 
       return this.getVisibleColumns()
         .filter((column) => column.searchable !== false)
-        .some((column) => String(this.getCellValue(row, column) ?? '').toLowerCase().includes(normalizedFilter));
+        .some((column) => {
+          const value = this.getCellValue(row, column);
+          return String(value ?? '').toLowerCase().includes(normalizedFilter);
+        });
+    };
+  }
+
+  private configureSorting(): void {
+    this.dataSource.sortingDataAccessor = (row: T, sortHeaderId: string): string | number => {
+      const column = this.getVisibleColumns().find(
+        (item) => this.getColumnName(item) === sortHeaderId
+      );
+
+      if (!column) {
+        return '';
+      }
+
+      const value = this.getCellValue(row, column);
+
+      if (value instanceof Date) {
+        return value.getTime();
+      }
+
+      if (typeof value === 'number') {
+        return value;
+      }
+
+      if (typeof value === 'boolean') {
+        return value ? 1 : 0;
+      }
+
+      return String(value ?? '').toLowerCase();
     };
   }
 
@@ -268,18 +309,73 @@ export class UiTableComponent<T = unknown> implements OnChanges, AfterViewInit {
     }
   }
 
-  private readRowValue(row: T, key: string): UiTableCellValue {
-    if (row && typeof row === 'object') {
-      const record = row as { [key: string]: unknown };
-      const value = record[key];
-      if (value == null || typeof value === 'string' || typeof value === 'number' || value instanceof Date) {
-        return value;
-      }
-      if (typeof value === 'boolean') {
-        return value ? 'Yes' : 'No';
-      }
-      return String(value);
+  private getInputRows(): readonly T[] {
+    return this.data.length > 0 ? this.data : this.rows;
+  }
+
+  private refreshDisplayedColumns(): void {
+    const visibleColumnNames = this.getVisibleColumns().map((column) => this.getColumnName(column));
+    const cols: string[] = [...visibleColumnNames];
+
+    if (this.actions.length > 0) {
+      cols.push(this.actionsColumnKey);
     }
-    return undefined;
+
+    this.displayedColumns = cols;
+  }
+
+  private getExportRows(): T[] {
+    return this.dataSource.filteredData.length > 0 || this.searchTerm
+      ? [...this.dataSource.filteredData]
+      : [...this.dataSource.data];
+  }
+
+  private formatExportValue(value: UiTableCellValue): string {
+    if (value instanceof Date) {
+      return value.toISOString();
+    }
+
+    if (value === null || value === undefined) {
+      return '';
+    }
+
+    return String(value);
+  }
+
+  private normalizeExcelValue(
+    value: UiTableCellValue
+  ): string | number | boolean | Date | null {
+    if (value === undefined) {
+      return null;
+    }
+
+    if (
+      value === null ||
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean' ||
+      value instanceof Date
+    ) {
+      return value;
+    }
+
+    return String(value);
+  }
+
+  private escapeCsv(value: string): string {
+    const escaped = value.replace(/"/g, '""');
+    return `"${escaped}"`;
+  }
+
+  private downloadBlob(content: string, fileName: string, mimeType: string): void {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+
+    URL.revokeObjectURL(url);
   }
 }
