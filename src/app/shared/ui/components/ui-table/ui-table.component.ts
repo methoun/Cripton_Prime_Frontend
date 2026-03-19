@@ -85,13 +85,15 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
   @Input() pageSizeOptions: number[] = [10, 25, 50, 100];
   @Input() showFirstLastButtons = true;
 
-  // optional new features
-  @Input() enableExport = false;
+  // built-in optional features
+  @Input() enableExport = true;
   @Input() exportFileName = 'table-data';
+  @Input() enableRefresh = true;
 
   @Output() actionClick = new EventEmitter<{ action: UiTableAction<T>; row: T }>();
   @Output() searchChange = new EventEmitter<string>();
   @Output() pageChange = new EventEmitter<PageEvent>();
+  @Output() refreshClick = new EventEmitter<void>();
 
   readonly actionsColumnKey = '__actions';
   readonly dataSource = new MatTableDataSource<T>([]);
@@ -166,6 +168,10 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
 
   onPage(event: PageEvent): void {
     this.pageChange.emit(event);
+  }
+
+  onRefresh(): void {
+    this.refreshClick.emit();
   }
 
   isActionHidden(action: UiTableAction<T>, row: T): boolean {

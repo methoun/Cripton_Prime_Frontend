@@ -16,7 +16,7 @@
       </div>
     </div>
 
-   <ui-table
+    <ui-table
       [title]="''"
       [data]="rows"
       [columns]="columns"
@@ -24,25 +24,17 @@
       [loading]="loading"
       [searchEnabled]="true"
       [enableExport]="true"
+      [enableRefresh]="true"
       [exportFileName]="'users'"
       [pageSize]="25"
       [pageSizeOptions]="[25, 50, 100]"
       [searchLabel]="'Search users'"
-      [searchPlaceholder]="'Search by username, email, role or status'"
+      [searchPlaceholder]="'Search here...'"
       [emptyTitle]="'No users found'"
       [emptyDescription]="'Create a user or adjust your search filter.'"
       (actionClick)="onTableAction($event)"
+      (refreshClick)="loadUsers()"
     >
-      <button
-        table-left-actions
-        mat-stroked-button
-        type="button"
-        class="ui-table__export-btn"
-        (click)="loadUsers()"
-      >
-    <mat-icon>refresh</mat-icon>
-    <span>Refresh</span>
-  </button>
-</ui-table>
+    </ui-table>
   </div>
 </div>

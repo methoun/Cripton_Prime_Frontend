@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
@@ -35,6 +41,7 @@ export class AdministrationUsersPageComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snack = inject(MatSnackBar);
   private readonly adminUsers = inject(AdminUserService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   loading = false;
   rows: AdminUser[] = [];
@@ -95,15 +102,18 @@ export class AdministrationUsersPageComponent implements OnInit {
 
   loadUsers(): void {
     this.loading = true;
+    this.cdr.markForCheck();
 
     this.adminUsers.getAll().subscribe({
       next: (users: AdminUser[]) => {
         this.rows = users ?? [];
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.loading = false;
         this.snack.open('Failed to load users', 'OK', { duration: 2500 });
+        this.cdr.markForCheck();
       },
     });
   }
@@ -136,6 +146,7 @@ export class AdministrationUsersPageComponent implements OnInit {
 
       this.loadUsers();
       this.snack.open('User created successfully', 'OK', { duration: 2500 });
+      this.cdr.markForCheck();
     });
   }
 
@@ -154,6 +165,7 @@ export class AdministrationUsersPageComponent implements OnInit {
 
       this.loadUsers();
       this.snack.open('User updated successfully', 'OK', { duration: 2500 });
+      this.cdr.markForCheck();
     });
   }
 
@@ -179,9 +191,11 @@ export class AdministrationUsersPageComponent implements OnInit {
         next: () => {
           this.rows = this.rows.filter((x: AdminUser) => x.id !== user.id);
           this.snack.open('User deleted successfully', 'OK', { duration: 2500 });
+          this.cdr.markForCheck();
         },
         error: () => {
           this.snack.open('Failed to delete user', 'OK', { duration: 2500 });
+          this.cdr.markForCheck();
         },
       });
     });

@@ -1,20 +1,11 @@
 <div class="ui-table">
-  <div class="ui-table__toolbar" *ngIf="title || searchEnabled || enableExport">
+  <div class="ui-table__toolbar" *ngIf="title || searchEnabled || enableExport || enableRefresh">
     <div class="ui-table__toolbar-left">
       <h3 class="ui-table__title" *ngIf="title">{{ title }}</h3>
 
-      <div class="ui-table__export-actions" *ngIf="enableExport">
-        <button
-          mat-stroked-button
-          type="button"
-          class="ui-table__export-btn"
-          (click)="exportCsv()"
-        >
-          <mat-icon>download</mat-icon>
-          <span>CSV</span>
-        </button>
-
-        <button
+      <div class="ui-table__export-actions" *ngIf="enableExport || enableRefresh">       
+      <button
+          *ngIf="enableExport"
           mat-stroked-button
           type="button"
           class="ui-table__export-btn"
@@ -23,9 +14,29 @@
           <mat-icon>table_view</mat-icon>
           <span>Excel</span>
         </button>
-      </div>
 
-      <ng-content select="[table-left-actions]"></ng-content>
+        <button
+          *ngIf="enableExport"
+          mat-stroked-button
+          type="button"
+          class="ui-table__export-btn"
+          (click)="exportCsv()"
+        >
+          <mat-icon>download</mat-icon>
+          <span>CSV</span>
+        </button>
+        
+         <button
+          *ngIf="enableRefresh"
+          mat-stroked-button
+          type="button"
+          class="ui-table__export-btn"
+          (click)="onRefresh()"
+        >
+          <mat-icon>refresh</mat-icon>
+          <span>Refresh</span>
+        </button>
+      </div>
     </div>
 
     <div class="ui-table__toolbar-right">
