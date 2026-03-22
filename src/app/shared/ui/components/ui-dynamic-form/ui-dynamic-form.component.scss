@@ -1,4 +1,39 @@
-.ui-dynamic-form {
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ui-dynamic-form__grid {
   display: grid;
-  gap: 12px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.ui-dynamic-form__col {
+  min-width: 0;
+}
+
+.ui-dynamic-form__col--12 {
+  grid-column: span 12;
+}
+
+.ui-dynamic-form__col--6 {
+  grid-column: span 6;
+}
+
+.ui-dynamic-form__col--4 {
+  grid-column: span 4;
+}
+
+.ui-dynamic-form__col--3 {
+  grid-column: span 3;
+}
+
+@media (max-width: 768px) {
+  .ui-dynamic-form__col--12,
+  .ui-dynamic-form__col--6,
+  .ui-dynamic-form__col--4,
+  .ui-dynamic-form__col--3 {
+    grid-column: span 12;
+  }
 }

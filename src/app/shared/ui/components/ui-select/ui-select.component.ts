@@ -25,4 +25,29 @@ export class UiSelectComponent<T = any> {
   @Input() disabled = false;
 
   panelClass = 'ui-select-panel';
+    getErrorMessage(): string {
+    if (!this.control?.errors) return '';
+
+    if (this.control.errors['required']) {
+      return `${this.label} is required`;
+    }
+
+    if (this.control.errors['email']) {
+      return 'Enter a valid email';
+    }
+
+    if (this.control.errors['minlength']) {
+      return `${this.label} is too short`;
+    }
+
+    if (this.control.errors['maxlength']) {
+      return `${this.label} is too long`;
+    }
+
+    if (this.control.errors['pattern']) {
+      return `Invalid ${this.label}`;
+    }
+
+    return `Invalid ${this.label}`;
+  }
 }

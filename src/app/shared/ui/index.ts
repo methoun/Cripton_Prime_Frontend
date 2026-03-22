@@ -24,7 +24,7 @@ export * from './components/ui-date-range/ui-date-range.component';
 export * from './components/ui-chip-input/ui-chip-input.component';
 export * from './components/ui-file-upload/ui-file-upload.component';
 export * from './components/ui-dynamic-form/ui-dynamic-form.component';
-
+export * from './components/ui-modal/ui-modal.component';
 // data
 export * from './components/ui-table/ui-table.component';
 

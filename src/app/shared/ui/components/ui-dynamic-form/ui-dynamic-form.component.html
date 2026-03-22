@@ -1,37 +1,82 @@
-<div class='ui-dynamic-form' [formGroup]='formGroup'>
+<div class="ui-dynamic-form__grid" [formGroup]="formGroup">
   @for (field of fields; track field.key) {
-    @switch (field.type) {
-      @case ('textarea') {
-        <mat-form-field appearance='outline'>
-          <mat-label>{{ field.label }}</mat-label>
-          <textarea matInput [formControlName]='field.key' [placeholder]='field.placeholder || ""' rows='4'></textarea>
-          @if (field.hint) { <mat-hint>{{ field.hint }}</mat-hint> }
-        </mat-form-field>
+    <div
+      class="ui-dynamic-form__col"
+      [ngClass]="getColSpanClass(field.colSpan)"
+    >
+      @switch (field.type) {
+        @case ('text') {
+          <ui-input
+            [control]="$any(formGroup.get(field.key))"
+            [label]="field.label"
+            [placeholder]="field.placeholder || null"
+            [hint]="field.hint || null"
+            [required]="field.required || false"
+            type="text"
+          />
+        }
+
+        @case ('email') {
+          <ui-input
+            [control]="$any(formGroup.get(field.key))"
+            [label]="field.label"
+            [placeholder]="field.placeholder || null"
+            [hint]="field.hint || null"
+            [required]="field.required || false"
+            type="email"
+          />
+        }
+
+        @case ('password') {
+          <ui-input
+            [control]="$any(formGroup.get(field.key))"
+            [label]="field.label"
+            [placeholder]="field.placeholder || null"
+            [hint]="field.hint || null"
+            [required]="field.required || false"
+            type="password"
+          />
+        }
+
+        @case ('number') {
+          <ui-input
+            [control]="$any(formGroup.get(field.key))"
+            [label]="field.label"
+            [placeholder]="field.placeholder || null"
+            [hint]="field.hint || null"
+            [required]="field.required || false"
+            type="number"
+          />
+        }
+
+        @case ('select') {
+          <ui-select
+            [control]="$any(formGroup.get(field.key))"
+            [label]="field.label"
+            [options]="field.options || []"
+            [hint]="field.hint || null"
+            [required]="field.required || false"
+          />
+        }
+
+        @case ('textarea') {
+          <ui-textarea
+            [control]="$any(formGroup.get(field.key))"
+            [label]="field.label"
+            [placeholder]="field.placeholder || null"
+            [hint]="field.hint || null"
+            [required]="field.required || false"
+            [rows]="field.rows || 3"
+          />
+        }
+
+        @case ('toggle') {
+          <ui-toggle
+            [control]="$any(formGroup.get(field.key))"
+            [label]="field.label"
+          />
+        }
       }
-      @case ('select') {
-        <mat-form-field appearance='outline'>
-          <mat-label>{{ field.label }}</mat-label>
-          <mat-select [formControlName]='field.key'>
-            @for (opt of field.options || []; track opt.label) {
-              <mat-option [value]='opt.value'>{{ opt.label }}</mat-option>
-            }
-          </mat-select>
-          @if (field.hint) { <mat-hint>{{ field.hint }}</mat-hint> }
-        </mat-form-field>
-      }
-      @case ('checkbox') {
-        <mat-checkbox [formControlName]='field.key'>{{ field.label }}</mat-checkbox>
-      }
-      @case ('toggle') {
-        <mat-slide-toggle [formControlName]='field.key'>{{ field.label }}</mat-slide-toggle>
-      }
-      @default {
-        <mat-form-field appearance='outline'>
-          <mat-label>{{ field.label }}</mat-label>
-          <input matInput [type]='field.type' [formControlName]='field.key' [placeholder]='field.placeholder || ""' />
-          @if (field.hint) { <mat-hint>{{ field.hint }}</mat-hint> }
-        </mat-form-field>
-      }
-    }
+    </div>
   }
 </div>

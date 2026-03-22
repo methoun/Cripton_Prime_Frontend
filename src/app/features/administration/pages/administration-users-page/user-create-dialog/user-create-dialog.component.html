@@ -1,17 +1,20 @@
-<div class='dlg'>
-  <div class='dlg__title'>
-    <mat-icon>{{ isEdit ? 'edit' : 'person_add' }}</mat-icon>
-    <span>{{ isEdit ? 'Edit User' : 'Create User' }}</span>
-  </div>
-
-  <form class='dlg__body' [formGroup]='form'>
-    <ui-dynamic-form [formGroup]='form' [fields]='fields'></ui-dynamic-form>
+<app-ui-modal
+  [title]="isEdit ? 'Edit User' : 'Create User'"
+  [subtitle]="isEdit ? 'Update user information' : 'Add a new user'"
+  [icon]="isEdit ? 'edit' : 'person_add'"
+  [primaryText]="loading ? 'Saving...' : (isEdit ? 'Update' : 'Create')"
+  [secondaryText]="'Cancel'"
+  [primaryDisabled]="loading || form.invalid"
+  [showClose]="true"
+  [showFooter]="true"
+  (primaryClick)="save()"
+  (secondaryClick)="close()"
+  (closeClick)="close()"
+>
+  <form class="user-dialog__body" [formGroup]="form">
+    <ui-dynamic-form
+      [formGroup]="form"
+      [fields]="fields"
+    ></ui-dynamic-form>
   </form>
-
-  <div class='dlg__actions'>
-    <button mat-stroked-button (click)='close()'>Cancel</button>
-    <button mat-flat-button color='primary' (click)='save()' [disabled]='loading'>
-      {{ loading ? 'Saving...' : (isEdit ? 'Update' : 'Create') }}
-    </button>
-  </div>
-</div>
+</app-ui-modal>

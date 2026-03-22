@@ -1,32 +1,18 @@
-.dlg {
-  padding: 16px;
-  width: min(92vw, 520px);
+:host {
+  display: block;
 }
 
-.dlg__title {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  font-weight: 800;
-  font-size: 16px;
-  margin-bottom: 12px;
-}
-
-.dlg__body {
-  display: grid;
-  gap: 12px;
-}
-
-.dlg__actions {
-  margin-top: 14px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  flex-wrap: wrap;
+.user-dialog__body {
+  width: 100%;
 }
 
 @media (max-width: 480px) {
-  .dlg__actions button {
+  :host ::ng-deep .ui-modal__footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  :host ::ng-deep .ui-modal__footer button {
     width: 100%;
   }
 }
