@@ -20,7 +20,6 @@ export class UiModalComponent {
   @Input() showClose = true;
   @Input() showFooter = true;
   @Input() hideSecondary = false;
-  @Input() closeOnBackdropClick = true;
   @Input() size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
 
   @Output() primaryClick = new EventEmitter<void>();
