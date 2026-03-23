@@ -1,8 +1,76 @@
-.ui-field { width: 100%; }
+.ui-field {
+  width: 100%;
+}
 
+.ui-field__required {
+  color: #dc2626;
+  margin-left: 2px;
+  font-weight: 600;
+}
+
+/* Select trigger box */
+:host ::ng-deep .ui-field .mat-mdc-text-field-wrapper {
+  border-radius: 8px;
+  height: 36px !important;
+  display: flex;
+  align-items: center;
+}
+
+/* Internal layout */
+:host ::ng-deep .ui-field .mat-mdc-form-field-flex,
+:host ::ng-deep .ui-field .mat-mdc-form-field-infix {
+  min-height: 36px !important;
+  height: 36px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  display: flex;
+  align-items: center;
+}
+
+/* Floating label */
+:host ::ng-deep .ui-field .mat-mdc-floating-label {
+  font-size: 13px;
+  line-height: 36px !important;
+  top: 18px !important;
+}
+
+/* Focused / selected state */
+:host ::ng-deep .ui-field .mdc-text-field--focused .mat-mdc-floating-label,
+:host ::ng-deep .ui-field .mdc-text-field--notched .mat-mdc-floating-label {
+  top: 26px !important;
+  transform: translateY(-130%) scale(0.85) !important;
+}
+
+/* Selected value / placeholder */
+:host ::ng-deep .ui-field .mat-mdc-select-value-text,
+:host ::ng-deep .ui-field .mat-mdc-select-placeholder {
+  font-size: 13px;
+  color: #132238;
+}
+
+:host ::ng-deep .ui-field .mat-mdc-select-placeholder {
+  color: #8a94a6;
+}
+
+/* Arrow alignment */
+:host ::ng-deep .ui-field .mat-mdc-select-arrow-wrapper {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* Dropdown panel */
 :host ::ng-deep .ui-select-panel.mat-mdc-select-panel {
   max-width: min(92vw, 480px);
   width: 100%;
 }
 
-:host ::ng-deep .ui-select-panel .mat-mdc-option { min-height: 44px; }
+/* Dropdown option */
+:host ::ng-deep .ui-select-panel .mat-mdc-option {
+  min-height: 30px;
+}
+
+.mat-mdc-option {
+min-height: 30px!important;
+font-size: 13px;
+}

@@ -8,29 +8,46 @@
   font-weight: 600;
 }
 
+/* 1. Main height fixed at 40px */
 :host ::ng-deep .ui-field .mat-mdc-text-field-wrapper {
   border-radius: 8px;
-}
-
-:host ::ng-deep .ui-field .mat-mdc-form-field-flex {
-  min-height: 48px;
+  height: 36px !important;
+  display: flex;
   align-items: center;
 }
 
+/* 2. Fix infix and flex height */
+:host ::ng-deep .ui-field .mat-mdc-form-field-flex,
 :host ::ng-deep .ui-field .mat-mdc-form-field-infix {
-  min-height: 48px;
-  padding-top: 12px !important;
-  padding-bottom: 8px !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  display: flex;
+  align-items: center;
 }
 
+/* 3. Label alignment */
 :host ::ng-deep .ui-field .mat-mdc-floating-label {
   font-size: 13px;
-  line-height: 1.2;
+  line-height: 40px !important;
+  top: 20px !important;
 }
 
+/* 4. Focused / notched floating label */
+:host ::ng-deep .ui-field .mdc-text-field--focused .mat-mdc-floating-label,
+:host ::ng-deep .ui-field .mdc-text-field--notched .mat-mdc-floating-label {
+  top: 28px !important;
+  transform: translateY(-130%) scale(0.85) !important;
+}
+
+/* 5. Input text alignment */
 :host ::ng-deep .ui-field input.mat-mdc-input-element {
   font-size: 13px;
   color: #132238;
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
 :host ::ng-deep .ui-field input::placeholder {

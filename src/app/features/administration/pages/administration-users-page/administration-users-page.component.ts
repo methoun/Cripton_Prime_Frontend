@@ -136,6 +136,7 @@ export class AdministrationUsersPageComponent implements OnInit {
       width: '620px',
       maxWidth: '95vw',
       data: { mode: 'create' },
+      disableClose: true,
       autoFocus: false,
     });
 
