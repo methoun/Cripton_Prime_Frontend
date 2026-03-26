@@ -2,8 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, map, of, tap, switchMap } from 'rxjs';
 
-import { ApiService } from './api.service';
-import { TokenStorageService } from './token-storage.service';
+import { ApiService } from '../services/api.service';
+import { TokenStorageService } from '../services/token-storage.service';
 import { PermissionApiService } from './permission-api.service';
 import { PermissionStateService } from '../state/permission-state.service';
 

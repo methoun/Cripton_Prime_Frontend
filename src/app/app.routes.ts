@@ -23,21 +23,14 @@ export const routes: Routes = [
     component: AppShellComponent,
     children: [
       { path: 'landing', component: LandingPageComponent },
-
-      // ✅ DB module routes (home/dashboard)
       { path: 'admin', component: AdministrationDashboardPageComponent },
       { path: 'hrm', component: HrmDashboardPageComponent },
       { path: 'prl', component: PrlDashboardPageComponent },
-
-      // ✅ existing explicit routes (keep)
       { path: 'administration/dashboard', component: AdministrationDashboardPageComponent },
       { path: 'administration/users', component: AdministrationUsersPageComponent },
-
       { path: 'hrm/dashboard', component: HrmDashboardPageComponent },
       { path: 'prl/dashboard', component: PrlDashboardPageComponent },
-
       { path: '', pathMatch: 'full', redirectTo: 'landing' },
-
       {
         path: '**',
         loadComponent: () =>
@@ -46,6 +39,5 @@ export const routes: Routes = [
       }
     ]
   },
-
-  { path: '**', redirectTo: 'landing' }
+  { path: '**', redirectTo: 'login' }
 ];

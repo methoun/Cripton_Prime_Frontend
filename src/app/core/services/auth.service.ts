@@ -5,9 +5,6 @@ import { Observable, catchError, map, of, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { TokenStorageService } from './token-storage.service';
 
-// ✅ Backend might return either:
-// A) { success: boolean; data: T; message?: string }
-// B) { isSuccess: boolean; value: T; error?: string }
 type ApiResult<T> =
   | { success: boolean; data: T; message?: string | null }
   | { isSuccess: boolean; value: T; error?: string | null };
@@ -30,7 +27,24 @@ export class AuthService {
   private readonly tokens = inject(TokenStorageService);
 
   public isLoggedIn(): boolean {
-    return !!this.tokens.getAccessToken();
+    const accessToken = this.tokens.getAccessToken();
+    const refreshToken = this.tokens.getRefreshToken();
+
+    if (!accessToken || !refreshToken) {
+      return false;
+    }
+
+    if (!this.isJwt(accessToken)) {
+      this.tokens.clearAll();
+      return false;
+    }
+
+    if (this.isTokenExpired(accessToken)) {
+      this.tokens.clearAll();
+      return false;
+    }
+
+    return true;
   }
 
   public login(payload: LoginRequest): Observable<void> {
@@ -43,12 +57,16 @@ export class AuthService {
 
   public refresh(): Observable<boolean> {
     const refreshToken = this.tokens.getRefreshToken();
-    if (!refreshToken) return of(false);
+    if (!refreshToken) {
+      return of(false);
+    }
 
     return this.api.post<ApiResult<TokenPairDto>>('/api/auth/refresh', { refreshToken }).pipe(
       map((res) => this.extractTokenPair(res)),
       tap((pair) => {
-        if (pair) this.persistTokens(pair);
+        if (pair) {
+          this.persistTokens(pair);
+        }
       }),
       map((pair) => !!pair),
       catchError(() => of(false))
@@ -67,37 +85,45 @@ export class AuthService {
   }
 
   public logoutClientSide(): void {
-    // তোমার TokenStorageService এ clearAll না থাকলে নিচের মতো method add করো
     this.tokens.clearAll();
   }
 
   private persistTokens(pair: TokenPairDto): void {
-    // তোমার TokenStorageService এ setTokens method থাকতে হবে
     this.tokens.setTokens({
       accessToken: pair.accessToken,
       refreshToken: pair.refreshToken
     });
   }
 
-  // -------- helpers --------
-
   private extractTokenPair(res: ApiResult<TokenPairDto> | null | undefined): TokenPairDto | null {
-    if (!res) return null;
+    if (!res) {
+      return null;
+    }
 
-    // A) { success, data }
     if ('success' in res) {
-      if (!res.success) return null;
-      const data = res.data as any;
-      if (!data?.accessToken || !data?.refreshToken) return null;
+      if (!res.success) {
+        return null;
+      }
+
+      const data = res.data as TokenPairDto | null | undefined;
+      if (!data?.accessToken || !data?.refreshToken) {
+        return null;
+      }
+
       return { accessToken: data.accessToken, refreshToken: data.refreshToken };
     }
 
-    // B) { isSuccess, value }
     if ('isSuccess' in res) {
-      if (!res.isSuccess) return null;
-      const val = (res as any).value;
-      if (!val?.accessToken || !val?.refreshToken) return null;
-      return { accessToken: val.accessToken, refreshToken: val.refreshToken };
+      if (!res.isSuccess) {
+        return null;
+      }
+
+      const value = res.value as TokenPairDto | null | undefined;
+      if (!value?.accessToken || !value?.refreshToken) {
+        return null;
+      }
+
+      return { accessToken: value.accessToken, refreshToken: value.refreshToken };
     }
 
     return null;
@@ -105,9 +131,10 @@ export class AuthService {
 
   private extractTokenPairOrThrow(res: ApiResult<TokenPairDto> | null | undefined, fallbackMsg: string): TokenPairDto {
     const pair = this.extractTokenPair(res);
-    if (pair) return pair;
+    if (pair) {
+      return pair;
+    }
 
-    // try to pull server message
     const msg =
       (res && 'message' in res && res.message) ||
       (res && 'error' in res && res.error) ||
@@ -116,11 +143,37 @@ export class AuthService {
     throw new Error(String(msg));
   }
 
-  // optional debug helper
+  private isJwt(token: string | null): boolean {
+    if (!token) {
+      return false;
+    }
+
+    const parts = token.split('.');
+    return parts.length === 3;
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payloadBase64 = token.split('.')[1];
+      const payloadJson = atob(payloadBase64);
+      const payload = JSON.parse(payloadJson) as { exp?: number };
+
+      if (!payload.exp) {
+        return true;
+      }
+
+      const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+      return payload.exp < currentTimeInSeconds;
+    } catch {
+      return true;
+    }
+  }
+
   private toReadableError(err: unknown): string {
     if (err instanceof HttpErrorResponse) {
       return err.error?.message ?? err.message ?? 'HTTP error';
     }
-    return (err as any)?.message ?? 'Unknown error';
+
+    return (err as { message?: string } | null | undefined)?.message ?? 'Unknown error';
   }
 }

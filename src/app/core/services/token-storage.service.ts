@@ -9,49 +9,61 @@ export class TokenStorageService {
   private readonly REFRESH_TOKEN_KEY = 'erp_refresh_token';
   private readonly ACTIVE_MODULE_KEY = 'erp_active_module';
 
-  // ✅ backward compatible overload
+  private get storage(): Storage {
+    return sessionStorage;
+  }
+
   setTokens(accessToken: string, refreshToken: string): void;
   setTokens(tokens: TokenPair): void;
   setTokens(a: string | TokenPair, b?: string): void {
     if (typeof a === 'string') {
-      localStorage.setItem(this.ACCESS_TOKEN_KEY, a);
-      localStorage.setItem(this.REFRESH_TOKEN_KEY, b ?? '');
+      this.storage.setItem(this.ACCESS_TOKEN_KEY, a);
+      this.storage.setItem(this.REFRESH_TOKEN_KEY, b ?? '');
       return;
     }
-    localStorage.setItem(this.ACCESS_TOKEN_KEY, a.accessToken);
-    localStorage.setItem(this.REFRESH_TOKEN_KEY, a.refreshToken);
+
+    this.storage.setItem(this.ACCESS_TOKEN_KEY, a.accessToken);
+    this.storage.setItem(this.REFRESH_TOKEN_KEY, a.refreshToken);
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem(this.ACCESS_TOKEN_KEY);
+    return this.storage.getItem(this.ACCESS_TOKEN_KEY);
   }
 
   getRefreshToken(): string | null {
-    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+    return this.storage.getItem(this.REFRESH_TOKEN_KEY);
   }
 
   clearAll(): void {
+    this.storage.removeItem(this.ACCESS_TOKEN_KEY);
+    this.storage.removeItem(this.REFRESH_TOKEN_KEY);
+    this.storage.removeItem(this.ACTIVE_MODULE_KEY);
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.ACTIVE_MODULE_KEY);
   }
 
   setActiveModule(module: ActiveModule): void {
-    localStorage.setItem(this.ACTIVE_MODULE_KEY, JSON.stringify(module));
+    this.storage.setItem(this.ACTIVE_MODULE_KEY, JSON.stringify(module));
   }
 
   getActiveModule(): ActiveModule | null {
-    const raw = localStorage.getItem(this.ACTIVE_MODULE_KEY);
-    if (!raw) return null;
+    const raw = this.storage.getItem(this.ACTIVE_MODULE_KEY) ?? localStorage.getItem(this.ACTIVE_MODULE_KEY);
+    if (!raw) {
+      return null;
+    }
+
     try {
       return JSON.parse(raw) as ActiveModule;
     } catch {
+      this.storage.removeItem(this.ACTIVE_MODULE_KEY);
       localStorage.removeItem(this.ACTIVE_MODULE_KEY);
       return null;
     }
   }
 
   removeActiveModule(): void {
+    this.storage.removeItem(this.ACTIVE_MODULE_KEY);
     localStorage.removeItem(this.ACTIVE_MODULE_KEY);
   }
 }

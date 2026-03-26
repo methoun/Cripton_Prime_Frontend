@@ -1,25 +1,15 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
-import { TokenStorageService } from '../services/token-storage.service';
-
-function isJwt(token: string | null): boolean {
-  if (!token) return false;
-  const parts = token.split('.');
-  return parts.length === 3;
-}
+import { AuthService } from '../services/auth.service';
 
 export const authGuard: CanActivateFn = () => {
-  const storage = inject(TokenStorageService);
+  const auth = inject(AuthService);
   const router = inject(Router);
 
-  // ✅ Normal auth behavior
-  const access = storage.getAccessToken();
-  const refresh = storage.getRefreshToken();
-
-  if (isJwt(access) && Boolean(refresh)) {
+  if (auth.isLoggedIn()) {
     return true;
   }
 
-  router.navigateByUrl('/login');
-  return false;
+  auth.logoutClientSide();
+  return router.createUrlTree(['/login']);
 };

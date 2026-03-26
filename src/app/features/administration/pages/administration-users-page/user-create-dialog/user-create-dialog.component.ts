@@ -53,7 +53,7 @@ export class UserCreateDialogComponent {
   readonly fields: UiFormField[] = [
     {
       key: 'username',
-      label: 'User Name',
+      label: 'Username',
       type: 'text',
       placeholder: 'Enter username',
       required: true,

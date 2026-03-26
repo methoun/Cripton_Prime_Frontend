@@ -12,6 +12,8 @@ export class NoAuthGuard implements CanActivate {
     if (this.auth.isLoggedIn()) {
       return this.router.parseUrl('/landing');
     }
+
+    this.auth.logoutClientSide();
     return true;
   }
 }

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { catchError, map, of, tap } from 'rxjs';
 import { PermissionApiService } from './permission-api.service';
 import { PermissionStateService } from '../state/permission-state.service';
-import { TokenStorageService } from './token-storage.service';
+import { TokenStorageService } from '../services/token-storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class PermissionBootstrapService {

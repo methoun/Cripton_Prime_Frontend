@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { ApiService } from './api.service';
+import { ApiService } from '../services/api.service';
 import { PermissionPayloadDto } from '../state/permission-state.service';
 
 // Same envelope type as your AuthService
