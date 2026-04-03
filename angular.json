@@ -3,67 +3,48 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "CriptonPrime": {
+    "cripton-prime": {
       "projectType": "application",
-      "schematics": {},
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/cripton-prime",
-            "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": [],
+            "index": "src/index.html",
+            "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
             "assets": [
-              "src/favicon.ico",
-              "src/assets"
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              }
             ],
-            "styles": [
-              "src/styles.scss",
-              "@angular/material/prebuilt-themes/indigo-pink.css"
-            ],
-            "scripts": []
+            "styles": ["src/styles.scss"]
           },
           "configurations": {
             "production": {
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2.5mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "8kb",
-                  "maximumError": "16kb"
-                }
-              ],
+              "optimization": true,
               "outputHashing": "all"
             },
             "development": {
               "optimization": false,
-              "extractLicenses": false,
               "sourceMap": true
             }
           },
           "defaultConfiguration": "development"
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "buildTarget": "CriptonPrime:build"
-          },
+          "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "CriptonPrime:build:production"
+              "buildTarget": "cripton-prime:build:production"
             },
             "development": {
-              "buildTarget": "CriptonPrime:build:development"
+              "buildTarget": "cripton-prime:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -72,6 +53,6 @@
     }
   },
   "cli": {
-    "analytics": "9dbd9ed0-7f95-4a99-ae6b-e02ce3ce1240"
+    "analytics": "ced1494d-3c0b-4039-b82d-60682f5967ea"
   }
 }

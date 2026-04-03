@@ -1,0 +1,17 @@
+
+<h2>Company List</h2>
+<div *ngIf="loading">Loading...</div>
+<table *ngIf="!loading">
+  <tr>
+    <th>Name</th>
+    <th>Phone</th>
+    <th>Email</th>
+    <th>Active</th>
+  </tr>
+  <tr *ngFor="let r of rows">
+    <td>{{r.compName}}</td>
+    <td>{{r.phoneNo}}</td>
+    <td>{{r.email}}</td>
+    <td>{{r.isActive}}</td>
+  </tr>
+</table>

@@ -205,16 +205,9 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
     }
 
     const key = column.key as keyof T;
-    const rawValue = row[key] as unknown;
+    const rawValue = row[key];
 
-    if (
-      rawValue === null ||
-      rawValue === undefined ||
-      typeof rawValue === 'string' ||
-      typeof rawValue === 'number' ||
-      typeof rawValue === 'boolean' ||
-      rawValue instanceof Date
-    ) {
+    if (this.isUiTableCellValue(rawValue)) {
       return rawValue;
     }
 
@@ -383,5 +376,16 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
     anchor.click();
 
     URL.revokeObjectURL(url);
+  }
+
+  private isUiTableCellValue(value: unknown): value is UiTableCellValue {
+    return (
+      value === null ||
+      value === undefined ||
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean' ||
+      value instanceof Date
+    );
   }
 }

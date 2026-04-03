@@ -1,0 +1,52 @@
+<div class="page">
+  <div class="header">
+    <div>
+      <h2>Company Information</h2>
+      <p>Manage company master entries.</p>
+    </div>
+    <button type="button" class="btn primary" (click)="addNew()">Add Company</button>
+  </div>
+
+  <div class="table-shell" *ngIf="!loading; else loadingTpl">
+    <table>
+      <thead>
+        <tr>
+          <th>Company Name</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Active</th>
+          <th>Sort Order</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of rows">
+          <td>{{ row.compName }}</td>
+          <td>{{ row.phoneNo }}</td>
+          <td>{{ row.email }}</td>
+          <td>{{ row.isActive ? 'Yes' : 'No' }}</td>
+          <td>{{ row.sortOrder }}</td>
+          <td class="actions">
+            <button type="button" class="link" (click)="edit(row)">Edit</button>
+            <button type="button" class="link danger" (click)="remove(row)">Delete</button>
+          </td>
+        </tr>
+
+        <tr *ngIf="rows.length === 0">
+          <td colspan="6" class="empty">No data found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #loadingTpl>
+    <div class="loading">Loading...</div>
+  </ng-template>
+
+  <app-adm-company-info-form-modal
+    [isOpen]="isModalOpen"
+    [model]="selectedRow"
+    (cancel)="closeModal()"
+    (saved)="onSaved()">
+  </app-adm-company-info-form-modal>
+</div>

@@ -30,6 +30,20 @@ export const routes: Routes = [
       { path: 'administration/users', component: AdministrationUsersPageComponent },
       { path: 'hrm/dashboard', component: HrmDashboardPageComponent },
       { path: 'prl/dashboard', component: PrlDashboardPageComponent },
+
+      {
+        path: 'administration/company-setup/adm-company-info',
+        loadComponent: () =>
+          import('./features/administration/Companysetup/adm-company-info/pages/adm-company-info-list/adm-company-info-list.component')
+            .then(m => m.AdmCompanyInfoListComponent)
+      },
+      {
+        path: 'administration/company-setup/adm-area-info',
+        loadComponent: () =>
+          import('./features/administration/Companysetup/adm-area-info/pages/adm-area-info-list/adm-area-info-list.component')
+            .then(m => m.AdmAreaInfoListComponent)
+      },
+
       { path: '', pathMatch: 'full', redirectTo: 'landing' },
       {
         path: '**',
