@@ -1,0 +1,155 @@
+<div class="ui-table">
+  <div class="ui-table__toolbar" *ngIf="title || searchEnabled || enableExport || enableRefresh">
+    <div class="ui-table__toolbar-left">
+      <h3 class="ui-table__title" *ngIf="title">{{ title }}</h3>
+
+      <div class="ui-table__export-actions" *ngIf="enableExport || enableRefresh">       
+      <button
+          *ngIf="enableExport"
+          mat-stroked-button
+          type="button"
+          class="ui-table__export-btn"
+          (click)="exportExcel()"
+        >
+          <mat-icon>table_view</mat-icon>
+          <span>Excel</span>
+        </button>
+
+        <button
+          *ngIf="enableExport"
+          mat-stroked-button
+          type="button"
+          class="ui-table__export-btn"
+          (click)="exportCsv()"
+        >
+          <mat-icon>download</mat-icon>
+          <span>CSV</span>
+        </button>
+        
+         <button
+          *ngIf="enableRefresh"
+          mat-stroked-button
+          type="button"
+          class="ui-table__export-btn"
+          (click)="onRefresh()"
+        >
+          <mat-icon>refresh</mat-icon>
+          <span>Refresh</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="ui-table__toolbar-right">
+      <div class="ui-table__search" *ngIf="searchEnabled">
+        <input
+          class="ui-table__search-input"
+          type="text"
+          [value]="searchTerm"
+          [placeholder]="searchPlaceholder"
+          [attr.aria-label]="searchLabel"
+          (input)="onSearchInput($event)"
+        />
+
+        <button
+          *ngIf="searchTerm"
+          class="ui-table__search-btn"
+          type="button"
+          aria-label="Clear search"
+          (click)="clearSearch()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+
+        <span class="ui-table__search-icon" *ngIf="!searchTerm">
+          <mat-icon>search</mat-icon>
+        </span>
+      </div>
+
+      <ng-content select="[table-actions]"></ng-content>
+    </div>
+  </div>
+
+  <div class="ui-table__card">
+    <div class="ui-table__table-wrap" [class.is-loading]="loading">
+      <table mat-table matSort [dataSource]="dataSource" class="ui-table__table">
+        <ng-container
+          *ngFor="let column of getVisibleColumns(); trackBy: trackByColumn"
+          [matColumnDef]="getColumnName(column)"
+        >
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            [style.width]="column.width || null"
+            [class]="column.headerClass || ''"
+          >
+            <ng-container *ngIf="isColumnSortable(column); else plainHeader">
+              <div [mat-sort-header]="getColumnName(column)">
+                {{ column.header }}
+              </div>
+            </ng-container>
+
+            <ng-template #plainHeader>
+              {{ column.header }}
+            </ng-template>
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let row"
+            [class]="column.cellClass || ''"
+          >
+            {{ getCellValue(row, column) ?? '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container [matColumnDef]="actionsColumnKey">
+          <th mat-header-cell *matHeaderCellDef class="ui-table__actions-header">
+            <ng-container *ngIf="actions.length > 0">Actions</ng-container>
+          </th>
+
+          <td mat-cell *matCellDef="let row" class="ui-table__actions-cell">
+            <div class="ui-table__actions" *ngIf="actions.length > 0">
+              <ng-container *ngFor="let action of actions; trackBy: trackByAction">
+                <ng-container *ngIf="!isActionHidden(action, row)">
+                  <button
+                    *ngIf="(action.variant || 'icon') === 'icon'"
+                    mat-icon-button
+                    type="button"
+                    class="ui-table__action-btn ui-table__action-btn--icon"
+                    [color]="action.color || 'primary'"
+                    [disabled]="isActionDisabled(action, row)"
+                    [matTooltip]="action.tooltip || action.label"
+                    (click)="onAction(action, row)"
+                  >
+                    <mat-icon>{{ action.icon || 'more_horiz' }}</mat-icon>
+                  </button>
+                </ng-container>
+              </ng-container>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns" class="ui-table__row"></tr>
+      </table>
+
+      <div class="ui-table__loading-overlay" *ngIf="loading">
+        <div class="ui-table__loading-text">Loading...</div>
+      </div>
+
+      <div class="ui-table__empty" *ngIf="!loading && dataSource.filteredData.length === 0">
+        <mat-icon class="ui-table__empty-icon">inbox</mat-icon>
+        <div class="ui-table__empty-title">{{ emptyTitle }}</div>
+        <div class="ui-table__empty-description">{{ emptyDescription || emptySubtitle }}</div>
+      </div>
+    </div>
+
+    <mat-paginator
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      [showFirstLastButtons]="showFirstLastButtons"
+      (page)="onPage($event)"
+    >
+    </mat-paginator>
+  </div>
+</div>

@@ -17,29 +17,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { SelectionModel } from '@angular/cdk/collections';
 
 import * as XLSX from 'xlsx';
 
 export type UiTableCellValue = string | number | boolean | Date | null | undefined;
-
-export interface UiTableFeatures {
-  search?: boolean;
-  sort?: boolean;
-  pagination?: boolean;
-  selection?: boolean;
-  export?: boolean;
-  exportCsv?: boolean;
-  exportExcel?: boolean;
-  refresh?: boolean;
-  stickyHeader?: boolean;
-  emptyState?: boolean;
-  loadingOverlay?: boolean;
-  rowClick?: boolean;
-}
 
 export interface UiTableColumn<T> {
   key: keyof T | string;
@@ -78,9 +59,6 @@ export interface UiTableAction<T> {
     MatIconModule,
     MatTooltipModule,
     MatSortModule,
-    MatMenuModule,
-    MatCheckboxModule,
-    MatProgressSpinnerModule,
   ],
   templateUrl: './ui-table.component.html',
   styleUrls: ['./ui-table.component.scss'],
@@ -97,7 +75,6 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
 
   @Input() loading = false;
   @Input() title = '';
-  @Input() subtitle = '';
   @Input() searchEnabled = true;
   @Input() searchLabel = 'Search';
   @Input() searchPlaceholder = 'Search...';
@@ -108,41 +85,31 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
   @Input() pageSizeOptions: number[] = [10, 25, 50, 100];
   @Input() showFirstLastButtons = true;
 
-  // legacy built-in optional features
+  // built-in optional features
   @Input() enableExport = true;
   @Input() exportFileName = 'table-data';
   @Input() enableRefresh = true;
-
-  // new unified feature toggle config
-  @Input() features: UiTableFeatures = {};
 
   @Output() actionClick = new EventEmitter<{ action: UiTableAction<T>; row: T }>();
   @Output() searchChange = new EventEmitter<string>();
   @Output() pageChange = new EventEmitter<PageEvent>();
   @Output() refreshClick = new EventEmitter<void>();
-  @Output() rowClick = new EventEmitter<T>();
-  @Output() selectionChange = new EventEmitter<T[]>();
 
   readonly actionsColumnKey = '__actions';
-  readonly selectionColumnKey = '__selection';
   readonly dataSource = new MatTableDataSource<T>([]);
-  readonly selection = new SelectionModel<T>(true, []);
 
   searchTerm = '';
   displayedColumns: string[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['columns'] || changes['actions'] || changes['features']) {
+    if (changes['columns'] || changes['actions']) {
       this.refreshDisplayedColumns();
       this.configureFilter();
       this.configureSorting();
-      this.updateTableReferences();
     }
 
     if (changes['data'] || changes['rows']) {
       this.dataSource.data = [...this.getInputRows()];
-      this.selection.clear();
-      this.emitSelection();
       this.applyFilter(this.searchTerm);
     }
 
@@ -152,14 +119,23 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
   }
 
   ngAfterViewInit(): void {
-    this.updateTableReferences();
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+      this.paginator.pageSize = this.pageSize;
+    }
+
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
+    }
+
     this.refreshDisplayedColumns();
     this.configureFilter();
     this.configureSorting();
     this.applyFilter(this.searchTerm);
   }
 
-  trackByColumn = (_index: number, column: UiTableColumn<T>): string => this.getColumnName(column);
+  trackByColumn = (_index: number, column: UiTableColumn<T>): string =>
+    this.getColumnName(column);
 
   trackByAction = (index: number, action: UiTableAction<T>): string =>
     action.key ?? action.label ?? String(index);
@@ -173,69 +149,7 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
   }
 
   isColumnSortable(column: UiTableColumn<T>): boolean {
-    return this.isSortEnabled() && column.sortable === true;
-  }
-
-  isSearchEnabled(): boolean {
-    return this.features.search ?? this.searchEnabled;
-  }
-
-  isPaginationEnabled(): boolean {
-    return this.features.pagination ?? true;
-  }
-
-  isSortEnabled(): boolean {
-    return this.features.sort ?? true;
-  }
-
-  isSelectionEnabled(): boolean {
-    return this.features.selection ?? false;
-  }
-
-  isRefreshEnabled(): boolean {
-    return this.features.refresh ?? this.enableRefresh;
-  }
-
-  isExportEnabled(): boolean {
-    return this.features.export ?? this.enableExport;
-  }
-
-  isCsvExportEnabled(): boolean {
-    return this.isExportEnabled() && (this.features.exportCsv ?? true);
-  }
-
-  isExcelExportEnabled(): boolean {
-    return this.isExportEnabled() && (this.features.exportExcel ?? true);
-  }
-
-  isStickyHeaderEnabled(): boolean {
-    return this.features.stickyHeader ?? true;
-  }
-
-  isEmptyStateEnabled(): boolean {
-    return this.features.emptyState ?? true;
-  }
-
-  isLoadingOverlayEnabled(): boolean {
-    return this.features.loadingOverlay ?? true;
-  }
-
-  isRowClickEnabled(): boolean {
-    return this.features.rowClick ?? false;
-  }
-
-  hasToolbar(): boolean {
-    return (
-      !!this.title ||
-      !!this.subtitle ||
-      this.isSearchEnabled() ||
-      this.isExportEnabled() ||
-      this.isRefreshEnabled()
-    );
-  }
-
-  hasActions(): boolean {
-    return this.actions.length > 0;
+    return column.sortable === true;
   }
 
   onSearchInput(event: Event): void {
@@ -258,14 +172,6 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
 
   onRefresh(): void {
     this.refreshClick.emit();
-  }
-
-  onRowClick(row: T): void {
-    if (!this.isRowClickEnabled()) {
-      return;
-    }
-
-    this.rowClick.emit(row);
   }
 
   isActionHidden(action: UiTableAction<T>, row: T): boolean {
@@ -306,36 +212,6 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
     }
 
     return String(rawValue);
-  }
-
-  isAllSelected(): boolean {
-    const rows = this.getSelectableRows();
-    return rows.length > 0 && this.selection.selected.length === rows.length;
-  }
-
-  isSomeSelected(): boolean {
-    const selectedCount = this.selection.selected.length;
-    return selectedCount > 0 && !this.isAllSelected();
-  }
-
-  toggleAllRows(checked: boolean): void {
-    this.selection.clear();
-
-    if (checked) {
-      this.getSelectableRows().forEach((row) => this.selection.select(row));
-    }
-
-    this.emitSelection();
-  }
-
-  toggleRowSelection(row: T, checked: boolean): void {
-    if (checked) {
-      this.selection.select(row);
-    } else {
-      this.selection.deselect(row);
-    }
-
-    this.emitSelection();
   }
 
   exportCsv(): void {
@@ -424,21 +300,6 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
     };
   }
 
-  private updateTableReferences(): void {
-    if (this.isPaginationEnabled() && this.paginator) {
-      this.dataSource.paginator = this.paginator;
-      this.paginator.pageSize = this.pageSize;
-    } else {
-      this.dataSource.paginator = null;
-    }
-
-    if (this.isSortEnabled() && this.sort) {
-      this.dataSource.sort = this.sort;
-    } else {
-      this.dataSource.sort = null;
-    }
-  }
-
   private applyFilter(value: string): void {
     this.dataSource.filter = value.trim().toLowerCase();
 
@@ -452,27 +313,14 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
   }
 
   private refreshDisplayedColumns(): void {
-    const cols: string[] = [];
+    const visibleColumnNames = this.getVisibleColumns().map((column) => this.getColumnName(column));
+    const cols: string[] = [...visibleColumnNames];
 
-    if (this.isSelectionEnabled()) {
-      cols.push(this.selectionColumnKey);
-    }
-
-    cols.push(...this.getVisibleColumns().map((column) => this.getColumnName(column)));
-
-    if (this.hasActions()) {
+    if (this.actions.length > 0) {
       cols.push(this.actionsColumnKey);
     }
 
     this.displayedColumns = cols;
-  }
-
-  private getSelectableRows(): T[] {
-    return [...this.dataSource.filteredData];
-  }
-
-  private emitSelection(): void {
-    this.selectionChange.emit([...this.selection.selected]);
   }
 
   private getExportRows(): T[] {

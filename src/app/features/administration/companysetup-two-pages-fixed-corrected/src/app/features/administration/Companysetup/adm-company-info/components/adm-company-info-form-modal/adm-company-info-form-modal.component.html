@@ -1,0 +1,89 @@
+<div class="backdrop" *ngIf="isOpen">
+  <div class="modal">
+    <div class="header">
+      <h3>{{ isEdit ? 'Edit Company' : 'Create Company' }}</h3>
+      <button type="button" class="close" (click)="close()">×</button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="grid">
+        <div class="field">
+          <label>Company Name *</label>
+          <input type="text" formControlName="compName" />
+        </div>
+
+        <div class="field">
+          <label>Company Name (Bangla)</label>
+          <input type="text" formControlName="compNameBng" />
+        </div>
+
+        <div class="field">
+          <label>Short Name (Eng)</label>
+          <input type="text" formControlName="shortNameEng" />
+        </div>
+
+        <div class="field">
+          <label>Short Name (Bangla)</label>
+          <input type="text" formControlName="shortNameBng" />
+        </div>
+
+        <div class="field span-2">
+          <label>Address (Eng)</label>
+          <textarea rows="3" formControlName="addressEng"></textarea>
+        </div>
+
+        <div class="field span-2">
+          <label>Address (Bangla)</label>
+          <textarea rows="3" formControlName="addressBng"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Phone</label>
+          <input type="text" formControlName="phoneNo" />
+        </div>
+
+        <div class="field">
+          <label>Email</label>
+          <input type="email" formControlName="email" />
+        </div>
+
+        <div class="field">
+          <label>Mail Port</label>
+          <input type="number" formControlName="mailPort" />
+        </div>
+
+        <div class="field">
+          <label>Mail From</label>
+          <input type="text" formControlName="mailFrom" />
+        </div>
+
+        <div class="field">
+          <label>Mail Password</label>
+          <input type="text" formControlName="mailPass" />
+        </div>
+
+        <div class="field">
+          <label>Sort Order</label>
+          <input type="number" formControlName="sortOrder" />
+        </div>
+
+        <label class="check">
+          <input type="checkbox" formControlName="setupCompWise" />
+          <span>Setup Company Wise</span>
+        </label>
+
+        <label class="check">
+          <input type="checkbox" formControlName="isActive" />
+          <span>Active</span>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn" (click)="close()">Cancel</button>
+        <button type="submit" class="btn primary" [disabled]="saving">
+          {{ isEdit ? 'Update' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
