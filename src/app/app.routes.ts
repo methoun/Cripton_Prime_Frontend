@@ -7,7 +7,7 @@ import { LandingPageComponent } from './features/administration/pages/landing-pa
 import { AppShellComponent } from './shared/components/app-shell/app-shell.component';
 
 import { AdministrationDashboardPageComponent } from './features/administration/pages/administration-dashboard-page/administration-dashboard-page.component';
-import { AdministrationUsersPageComponent } from './features/administration/pages/administration-users-page/administration-users-page.component';
+
 import { HrmDashboardPageComponent } from './features/hrm/pages/hrm-dashboard-page/hrm-dashboard-page.component';
 import { PrlDashboardPageComponent } from './features/prl/pages/prl-dashboard-page/prl-dashboard-page.component';
 
@@ -27,7 +27,7 @@ export const routes: Routes = [
       { path: 'hrm', component: HrmDashboardPageComponent },
       { path: 'prl', component: PrlDashboardPageComponent },
       { path: 'administration/dashboard', component: AdministrationDashboardPageComponent },
-      { path: 'administration/users', component: AdministrationUsersPageComponent },
+
       { path: 'hrm/dashboard', component: HrmDashboardPageComponent },
       { path: 'prl/dashboard', component: PrlDashboardPageComponent },
 
@@ -37,12 +37,7 @@ export const routes: Routes = [
           import('./features/administration/Companysetup/adm-company-info/pages/adm-company-info-list/adm-company-info-list.component')
             .then(m => m.AdmCompanyInfoListComponent)
       },
-      {
-        path: 'administration/company-setup/adm-area-info',
-        loadComponent: () =>
-          import('./features/administration/Companysetup/adm-area-info/pages/adm-area-info-list/adm-area-info-list.component')
-            .then(m => m.AdmAreaInfoListComponent)
-      },
+   
 
       { path: '', pathMatch: 'full', redirectTo: 'landing' },
       {

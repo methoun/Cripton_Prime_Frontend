@@ -1,0 +1,26 @@
+<div class="page">
+  <ui-table
+    [data]="rows"
+    [columns]="columns"
+    [actions]="actions"
+    [features]="tableFeatures"
+    [loading]="loading"
+    [title]="'Company Information'"
+    [emptyTitle]="'No company found'"
+    [emptyDescription]="'There are no company records to display.'"
+    [exportFileName]="'company-information'"
+    (refreshClick)="load()"
+    (selectionChange)="onSelectionChange($event)"
+  >
+    <button
+      table-actions
+      mat-flat-button
+      color="primary"
+      type="button"
+      class="page__add-btn"
+      (click)="addNew()"
+    >
+      Add Company
+    </button>
+  </ui-table>
+</div>

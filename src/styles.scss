@@ -57,11 +57,13 @@ $theme: mat.m2-define-light-theme((
 
   --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
   --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 20px 60px rgba(15, 23, 42, 0.18);
 
   --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-md: 10px;
   --radius-lg: 14px;
+  --radius-xl: 18px;
 
   --page-padding: 10px;
   --card-padding: 10px;
@@ -102,6 +104,7 @@ body {
 *::before,
 *::after {
   box-sizing: border-box;
+  min-width: 0;
 }
 
 a {
@@ -191,6 +194,7 @@ select {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .erp-section-title {
@@ -412,7 +416,8 @@ select {
 /* =========================
    Dialog / Modal
 ========================= */
-.mat-mdc-dialog-container .mdc-dialog__surface {
+.mat-mdc-dialog-container .mdc-dialog__surface,
+.mat-mdc-dialog-container .mat-mdc-dialog-surface {
   border-radius: var(--radius-md) !important;
   border: 1px solid var(--border) !important;
   box-shadow: var(--shadow-md) !important;
@@ -429,7 +434,8 @@ select {
 
 .mat-mdc-dialog-content {
   padding: 0 14px 12px !important;
-  max-height: 72vh !important;
+  max-height: calc(92vh - 140px) !important;
+  overflow: auto !important;
   color: var(--muted-strong) !important;
 }
 
@@ -605,6 +611,18 @@ select {
   font-size: 12px;
   color: var(--muted);
 }
+.page__add-btn {
+  background: #ffc107 !important;
+  color: #212529 !important;
+  border: 1px solid #ffc107 !important;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.page__add-btn:hover {
+  background: #e0a800 !important;
+  border-color: #d39e00 !important;
+}
 
 /* =========================
    Breadcrumb / Header Helpers
@@ -646,14 +664,35 @@ select {
 *::-webkit-scrollbar-track {
   background: transparent;
 }
+
 /* =========================
    Modal / Dialog Overrides for App Theme
 ========================= */
-.app-dialog-panel .mat-mdc-dialog-surface {
+.cdk-overlay-container,
+.cdk-global-overlay-wrapper {
+  pointer-events: auto;
+}
+
+.app-dialog-panel .mat-mdc-dialog-container,
+.app-dialog-panel .mdc-dialog__container {
   padding: 0 !important;
-  border-radius: 18px !important;
+}
+
+.app-dialog-panel .mat-mdc-dialog-surface,
+.app-dialog-panel .mdc-dialog__surface {
+  padding: 0 !important;
+  border-radius: var(--radius-xl) !important;
   overflow: hidden !important;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.18) !important;
+  box-shadow: var(--shadow-lg) !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  max-height: min(92vh, 920px) !important;
+}
+
+.app-dialog-panel .mat-mdc-dialog-content {
+  max-height: calc(92vh - 140px) !important;
+  overflow: auto !important;
+  padding: 0 16px 16px !important;
 }
 
 .app-dialog-backdrop {
@@ -661,39 +700,116 @@ select {
   backdrop-filter: blur(3px);
 }
 
+.app-global-dialog-panel .mat-mdc-dialog-container {
+  padding: 0 !important;
+}
+
+.app-global-dialog-panel .mat-mdc-dialog-surface,
+.app-global-dialog-panel .mdc-dialog__surface {
+  padding: 0 !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+  background: #ffffff !important;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.2) !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.app-global-dialog-backdrop {
+  background: rgba(15, 23, 42, 0.4) !important;
+  backdrop-filter: blur(4px);
+}
+
 /* =========================
    Responsive
 ========================= */
-@media (max-width: 1199px) {
+
+/* Large desktop */
+@media (min-width: 1400px) {
+  :root {
+    --page-padding: 14px;
+    --card-padding: 14px;
+    --section-gap: 14px;
+  }
+
+  .erp-form-grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .erp-form-grid--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Laptop / small desktop */
+@media (max-width: 1399px) and (min-width: 992px) {
+  :root {
+    --page-padding: 10px;
+    --card-padding: 10px;
+  }
+
+  .erp-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .erp-form-grid--3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .erp-form-grid--4 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 991px) {
+/* Tablet */
+@media (max-width: 991px) and (min-width: 768px) {
   :root {
-    --page-padding: 8px;
-    --card-padding: 8px;
+    --page-padding: 10px;
+    --card-padding: 10px;
+    --field-height: 38px;
   }
 
   .erp-form-grid,
   .erp-form-grid--3,
   .erp-form-grid--4 {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .card-grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .erp-section-title {
     font-size: 18px;
   }
+
+  .app-dialog-panel .mat-mdc-dialog-surface,
+  .app-dialog-panel .mdc-dialog__surface {
+    width: min(96vw, 900px) !important;
+    max-width: 96vw !important;
+    max-height: 94vh !important;
+  }
+
+  .app-dialog-panel .mat-mdc-dialog-content {
+    max-height: calc(94vh - 132px) !important;
+  }
 }
 
+/* Mobile */
 @media (max-width: 767px) {
+  :root {
+    --page-padding: 8px;
+    --card-padding: 8px;
+    --section-gap: 8px;
+    --field-height: 40px;
+    --toolbar-height: auto;
+    --table-header-height: 36px;
+    --table-row-height: 40px;
+  }
+
   .erp-toolbar,
-  .erp-page-header {
+  .erp-page-header,
+  .erp-inline {
+    flex-direction: column;
     align-items: stretch;
   }
 
@@ -702,16 +818,65 @@ select {
   .erp-page-header__left,
   .erp-page-header__right {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
   }
 
+  .erp-form-grid,
+  .erp-form-grid--3,
+  .erp-form-grid--4,
   .card-grid {
     grid-template-columns: 1fr;
+  }
+
+  .erp-section-title {
+    font-size: 16px;
   }
 
   .mat-mdc-header-cell,
   .mat-mdc-cell {
     padding-left: 8px !important;
     padding-right: 8px !important;
+    font-size: 11px !important;
+  }
+
+  .mat-mdc-paginator-container {
+    justify-content: center !important;
+    row-gap: 8px;
+  }
+
+  .app-dialog-panel .mat-mdc-dialog-surface,
+  .app-dialog-panel .mdc-dialog__surface {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    max-height: calc(100vh - 16px) !important;
+    border-radius: 14px !important;
+  }
+
+  .app-dialog-panel .mat-mdc-dialog-content {
+    max-height: calc(100vh - 120px) !important;
+    padding: 0 12px 12px !important;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 479px) {
+  .mat-mdc-raised-button,
+  .mat-mdc-unelevated-button,
+  .mat-mdc-outlined-button {
+    width: 100%;
+  }
+
+  .erp-toolbar__left,
+  .erp-toolbar__right,
+  .erp-page-header__left,
+  .erp-page-header__right {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ui-chip,
+  .status-chip,
+  .role-chip {
+    min-width: auto;
   }
 }

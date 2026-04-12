@@ -1,0 +1,92 @@
+<div class="company-modal">
+  <div class="company-modal__header">
+    <div>
+      <h3>{{ dialogTitle }}</h3>
+      <p>{{ readOnly ? 'Company information details' : 'Fill up the required information below.' }}</p>
+    </div>
+    <button type="button" class="close" (click)="close()" aria-label="Close dialog">×</button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="save()" class="company-modal__form">
+    <div class="grid">
+      <div class="field">
+        <label>Company Name *</label>
+        <input type="text" formControlName="compName" />
+      </div>
+
+      <div class="field">
+        <label>Company Name (Bangla)</label>
+        <input type="text" formControlName="compNameBng" />
+      </div>
+
+      <div class="field">
+        <label>Short Name (Eng)</label>
+        <input type="text" formControlName="shortNameEng" />
+      </div>
+
+      <div class="field">
+        <label>Short Name (Bangla)</label>
+        <input type="text" formControlName="shortNameBng" />
+      </div>
+
+      <div class="field span-2">
+        <label>Address (Eng)</label>
+        <textarea rows="3" formControlName="addressEng"></textarea>
+      </div>
+
+      <div class="field span-2">
+        <label>Address (Bangla)</label>
+        <textarea rows="3" formControlName="addressBng"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Phone</label>
+        <input type="text" formControlName="phoneNo" />
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" formControlName="email" />
+      </div>
+
+      <div class="field">
+        <label>Mail Port</label>
+        <input type="number" formControlName="mailPort" />
+      </div>
+
+      <div class="field">
+        <label>Mail From</label>
+        <input type="text" formControlName="mailFrom" />
+      </div>
+
+      <div class="field">
+        <label>Mail Password</label>
+        <input type="text" formControlName="mailPass" />
+      </div>
+
+      <div class="field">
+        <label>Sort Order</label>
+        <input type="number" formControlName="sortOrder" />
+      </div>
+
+      <label class="check">
+        <input type="checkbox" formControlName="setupCompWise" />
+        <span>Setup Company Wise</span>
+      </label>
+
+      <label class="check">
+        <input type="checkbox" formControlName="isActive" />
+        <span>Active</span>
+      </label>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn" (click)="close()">
+        {{ readOnly ? 'Close' : 'Cancel' }}
+      </button>
+      <button *ngIf="!readOnly" type="submit" class="btn primary" [disabled]="saving">
+        {{ isEdit ? 'Update' : 'Save' }}
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,28 +1,34 @@
 <div class="page">
+  <div class="page__loader" *ngIf="!pageReady || loading">
+    <div class="page__loader-box">
+      <div class="page__spinner"></div>
+      <div class="page__loader-text">Loading company information...</div>
+    </div>
+  </div>
+
   <ui-table
+    *ngIf="pageReady"
     [data]="rows"
     [columns]="columns"
     [actions]="actions"
     [features]="tableFeatures"
-    [title]="'Company Information'"
-    [subtitle]="'Manage company master entries.'"
     [loading]="loading"
-    [exportFileName]="'company-information'"
+    [title]="''"
     [emptyTitle]="'No company found'"
     [emptyDescription]="'There are no company records to display.'"
+    [exportFileName]="'company-information'"
     (refreshClick)="load()"
     (selectionChange)="onSelectionChange($event)"
   >
-    <button table-actions type="button" class="page__add-btn" (click)="addNew()">
+    <button
+      table-actions
+      mat-flat-button
+      color="primary"
+      type="button"
+      class="page__add-btn"
+      (click)="addNew()"
+    >
       Add Company
     </button>
   </ui-table>
-
-  <app-adm-company-info-form-modal
-    [isOpen]="isModalOpen"
-    [model]="selectedRow"
-    (cancel)="closeModal()"
-    (saved)="onSaved()"
-  >
-  </app-adm-company-info-form-modal>
 </div>

@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -8,21 +9,20 @@ import {
   Output,
   SimpleChanges,
   ViewChild,
+  NgZone,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SelectionModel } from '@angular/cdk/collections';
-
-import * as XLSX from 'xlsx';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 export type UiTableCellValue = string | number | boolean | Date | null | undefined;
 
@@ -39,6 +39,7 @@ export interface UiTableFeatures {
   emptyState?: boolean;
   loadingOverlay?: boolean;
   rowClick?: boolean;
+  horizontalScroll?: boolean;
 }
 
 export interface UiTableColumn<T> {
@@ -48,8 +49,10 @@ export interface UiTableColumn<T> {
   searchable?: boolean;
   sortable?: boolean;
   width?: string;
+  minWidth?: string;
   headerClass?: string;
   cellClass?: string;
+  badge?: boolean;
   formatter?: (row: T) => UiTableCellValue;
   cell?: (row: T) => UiTableCellValue;
   value?: (row: T) => UiTableCellValue;
@@ -84,21 +87,33 @@ export interface UiTableAction<T> {
   ],
   templateUrl: './ui-table.component.html',
   styleUrls: ['./ui-table.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
 })
 export class UiTableComponent<T extends object> implements OnChanges, AfterViewInit {
   @ViewChild(MatPaginator) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
 
+  constructor(private cdr: ChangeDetectorRef, private zone: NgZone) {}
+
   @Input() data: readonly T[] = [];
   @Input() rows: readonly T[] = [];
   @Input() columns: readonly UiTableColumn<T>[] = [];
   @Input() actions: readonly UiTableAction<T>[] = [];
+  @Input() features: UiTableFeatures = {};
 
-  @Input() loading = false;
+  private _loading = false;
+
+  @Input()
+  set loading(value: boolean) {
+    this._loading = value;
+    this.cdr.markForCheck();
+  }
+  get loading(): boolean {
+    return this._loading;
+  }
+
   @Input() title = '';
   @Input() subtitle = '';
-  @Input() searchEnabled = true;
   @Input() searchLabel = 'Search';
   @Input() searchPlaceholder = 'Search...';
   @Input() emptyTitle = 'No data found';
@@ -107,14 +122,7 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
   @Input() pageSize = 10;
   @Input() pageSizeOptions: number[] = [10, 25, 50, 100];
   @Input() showFirstLastButtons = true;
-
-  // legacy built-in optional features
-  @Input() enableExport = true;
   @Input() exportFileName = 'table-data';
-  @Input() enableRefresh = true;
-
-  // new unified feature toggle config
-  @Input() features: UiTableFeatures = {};
 
   @Output() actionClick = new EventEmitter<{ action: UiTableAction<T>; row: T }>();
   @Output() searchChange = new EventEmitter<string>();
@@ -123,8 +131,8 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
   @Output() rowClick = new EventEmitter<T>();
   @Output() selectionChange = new EventEmitter<T[]>();
 
+  readonly selectionColumnKey = '__select';
   readonly actionsColumnKey = '__actions';
-  readonly selectionColumnKey = '__selection';
   readonly dataSource = new MatTableDataSource<T>([]);
   readonly selection = new SelectionModel<T>(true, []);
 
@@ -136,33 +144,75 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
       this.refreshDisplayedColumns();
       this.configureFilter();
       this.configureSorting();
-      this.updateTableReferences();
     }
 
     if (changes['data'] || changes['rows']) {
-      this.dataSource.data = [...this.getInputRows()];
-      this.selection.clear();
-      this.emitSelection();
-      this.applyFilter(this.searchTerm);
+      this.updateDataSource();
     }
 
     if (changes['pageSize'] && this.paginator) {
       this.paginator.pageSize = this.pageSize;
     }
+
+    this.cdr.markForCheck();
+  }
+
+  private updateDataSource(): void {
+    const newRows = [...this.getInputRows()];
+    
+    // ✅ NgZone এর ভেতরে ডাটা আপডেট করা হচ্ছে যাতে ক্লিক ছাড়াই রেন্ডার হয়
+    this.zone.run(() => {
+      this.dataSource.data = newRows;
+      this.selection.clear();
+      this.selectionChange.emit(this.selection.selected);
+      this.applyFilter(this.searchTerm);
+      this.refreshDisplayedColumns();
+      
+      // ✅ চেঞ্জ ডিটেকশন ট্রিগার করা
+      this.cdr.detectChanges();
+    });
   }
 
   ngAfterViewInit(): void {
-    this.updateTableReferences();
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+      this.paginator.pageSize = this.pageSize;
+    }
+
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
+    }
+
     this.refreshDisplayedColumns();
     this.configureFilter();
     this.configureSorting();
     this.applyFilter(this.searchTerm);
+
+    this.cdr.detectChanges();
   }
 
-  trackByColumn = (_index: number, column: UiTableColumn<T>): string => this.getColumnName(column);
+  // --- Helper Methods ---
+
+  trackByColumn = (_index: number, column: UiTableColumn<T>): string =>
+    this.getColumnName(column);
 
   trackByAction = (index: number, action: UiTableAction<T>): string =>
     action.key ?? action.label ?? String(index);
+
+  hasToolbar(): boolean {
+    return (
+      !!this.title ||
+      !!this.subtitle ||
+      this.isSearchEnabled() ||
+      this.isRefreshEnabled() ||
+      this.isExportEnabled() ||
+      (this.isSelectionEnabled() && this.selection.selected.length > 0)
+    );
+  }
+
+  hasActions(): boolean {
+    return this.actions.length > 0;
+  }
 
   getVisibleColumns(): UiTableColumn<T>[] {
     return this.columns.filter((column) => !column.hidden);
@@ -177,35 +227,35 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
   }
 
   isSearchEnabled(): boolean {
-    return this.features.search ?? this.searchEnabled;
-  }
-
-  isPaginationEnabled(): boolean {
-    return this.features.pagination ?? true;
+    return this.features.search ?? true;
   }
 
   isSortEnabled(): boolean {
     return this.features.sort ?? true;
   }
 
+  isPaginationEnabled(): boolean {
+    return this.features.pagination ?? true;
+  }
+
   isSelectionEnabled(): boolean {
     return this.features.selection ?? false;
   }
 
-  isRefreshEnabled(): boolean {
-    return this.features.refresh ?? this.enableRefresh;
-  }
-
   isExportEnabled(): boolean {
-    return this.features.export ?? this.enableExport;
+    return this.features.export ?? true;
   }
 
   isCsvExportEnabled(): boolean {
-    return this.isExportEnabled() && (this.features.exportCsv ?? true);
+    return (this.features.exportCsv ?? true) && this.isExportEnabled();
   }
 
   isExcelExportEnabled(): boolean {
-    return this.isExportEnabled() && (this.features.exportExcel ?? true);
+    return (this.features.exportExcel ?? true) && this.isExportEnabled();
+  }
+
+  isRefreshEnabled(): boolean {
+    return this.features.refresh ?? true;
   }
 
   isStickyHeaderEnabled(): boolean {
@@ -224,18 +274,8 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
     return this.features.rowClick ?? false;
   }
 
-  hasToolbar(): boolean {
-    return (
-      !!this.title ||
-      !!this.subtitle ||
-      this.isSearchEnabled() ||
-      this.isExportEnabled() ||
-      this.isRefreshEnabled()
-    );
-  }
-
-  hasActions(): boolean {
-    return this.actions.length > 0;
+  isHorizontalScrollEnabled(): boolean {
+    return this.features.horizontalScroll ?? true;
   }
 
   onSearchInput(event: Event): void {
@@ -264,7 +304,6 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
     if (!this.isRowClickEnabled()) {
       return;
     }
-
     this.rowClick.emit(row);
   }
 
@@ -280,52 +319,53 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
     if (this.isActionDisabled(action, row)) {
       return;
     }
-
     action.onClick?.(row);
     this.actionClick.emit({ action, row });
   }
 
-  getCellValue(row: T, column: UiTableColumn<T>): UiTableCellValue {
-    if (column.formatter) {
-      return column.formatter(row);
-    }
+  isBadgeColumn(column: UiTableColumn<T>): boolean {
+    return column.badge === true;
+  }
 
-    if (column.cell) {
-      return column.cell(row);
-    }
+  getBadgeLabel(value: UiTableCellValue): string {
+    if (value === true || value === 1) return 'Active';
+    if (value === false || value === 0) return 'Inactive';
 
-    if (column.value) {
-      return column.value(row);
-    }
+    const normalized = String(value ?? '').trim().toLowerCase();
 
-    const key = column.key as keyof T;
-    const rawValue = row[key];
+    if (['yes', 'active', 'true', '1'].includes(normalized)) return 'Active';
+    if (['no', 'inactive', 'false', '0'].includes(normalized)) return 'Inactive';
 
-    if (this.isUiTableCellValue(rawValue)) {
-      return rawValue;
-    }
+    return 'Unknown';
+  }
 
-    return String(rawValue);
+  getBadgeClass(value: UiTableCellValue): string {
+    const label = this.getBadgeLabel(value);
+    if (label === 'Active') return 'ui-table__badge ui-table__badge--success';
+    if (label === 'Inactive') return 'ui-table__badge ui-table__badge--danger';
+    return 'ui-table__badge ui-table__badge--neutral';
   }
 
   isAllSelected(): boolean {
-    const rows = this.getSelectableRows();
-    return rows.length > 0 && this.selection.selected.length === rows.length;
+    const numSelected = this.selection.selected.length;
+    const numRows = this.dataSource.filteredData.length;
+    return numRows > 0 && numSelected === numRows;
   }
 
   isSomeSelected(): boolean {
-    const selectedCount = this.selection.selected.length;
-    return selectedCount > 0 && !this.isAllSelected();
+    const numSelected = this.selection.selected.length;
+    const numRows = this.dataSource.filteredData.length;
+    return numSelected > 0 && numSelected < numRows;
   }
 
   toggleAllRows(checked: boolean): void {
-    this.selection.clear();
-
     if (checked) {
-      this.getSelectableRows().forEach((row) => this.selection.select(row));
+      this.selection.clear();
+      this.dataSource.filteredData.forEach((row) => this.selection.select(row));
+    } else {
+      this.selection.clear();
     }
-
-    this.emitSelection();
+    this.selectionChange.emit(this.selection.selected);
   }
 
   toggleRowSelection(row: T, checked: boolean): void {
@@ -334,8 +374,18 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
     } else {
       this.selection.deselect(row);
     }
+    this.selectionChange.emit(this.selection.selected);
+  }
 
-    this.emitSelection();
+  getCellValue(row: T, column: UiTableColumn<T>): UiTableCellValue {
+    if (column.formatter) return column.formatter(row);
+    if (column.cell) return column.cell(row);
+    if (column.value) return column.value(row);
+
+    const key = column.key as keyof T;
+    const rawValue = row[key];
+
+    return this.isUiTableCellValue(rawValue) ? rawValue : String(rawValue);
   }
 
   exportCsv(): void {
@@ -358,17 +408,17 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
     this.downloadBlob(csvContent, `${this.exportFileName}.csv`, 'text/csv;charset=utf-8;');
   }
 
-  exportExcel(): void {
+  async exportExcel(): Promise<void> {
+    const XLSX = await import('xlsx');
+
     const exportRows = this.getExportRows();
     const visibleColumns = this.getVisibleColumns();
 
     const sheetData = exportRows.map((row) => {
       const record: Record<string, string | number | boolean | Date | null> = {};
-
       visibleColumns.forEach((column) => {
         record[column.header] = this.normalizeExcelValue(this.getCellValue(row, column));
       });
-
       return record;
     });
 
@@ -382,10 +432,7 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
   private configureFilter(): void {
     this.dataSource.filterPredicate = (row: T, filter: string): boolean => {
       const normalizedFilter = filter.trim().toLowerCase();
-
-      if (!normalizedFilter) {
-        return true;
-      }
+      if (!normalizedFilter) return true;
 
       return this.getVisibleColumns()
         .filter((column) => column.searchable !== false)
@@ -401,47 +448,19 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
       const column = this.getVisibleColumns().find(
         (item) => this.getColumnName(item) === sortHeaderId
       );
-
-      if (!column) {
-        return '';
-      }
+      if (!column) return '';
 
       const value = this.getCellValue(row, column);
-
-      if (value instanceof Date) {
-        return value.getTime();
-      }
-
-      if (typeof value === 'number') {
-        return value;
-      }
-
-      if (typeof value === 'boolean') {
-        return value ? 1 : 0;
-      }
+      if (value instanceof Date) return value.getTime();
+      if (typeof value === 'number') return value;
+      if (typeof value === 'boolean') return value ? 1 : 0;
 
       return String(value ?? '').toLowerCase();
     };
   }
 
-  private updateTableReferences(): void {
-    if (this.isPaginationEnabled() && this.paginator) {
-      this.dataSource.paginator = this.paginator;
-      this.paginator.pageSize = this.pageSize;
-    } else {
-      this.dataSource.paginator = null;
-    }
-
-    if (this.isSortEnabled() && this.sort) {
-      this.dataSource.sort = this.sort;
-    } else {
-      this.dataSource.sort = null;
-    }
-  }
-
   private applyFilter(value: string): void {
     this.dataSource.filter = value.trim().toLowerCase();
-
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
@@ -453,26 +472,10 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
 
   private refreshDisplayedColumns(): void {
     const cols: string[] = [];
-
-    if (this.isSelectionEnabled()) {
-      cols.push(this.selectionColumnKey);
-    }
-
+    if (this.isSelectionEnabled()) cols.push(this.selectionColumnKey);
     cols.push(...this.getVisibleColumns().map((column) => this.getColumnName(column)));
-
-    if (this.hasActions()) {
-      cols.push(this.actionsColumnKey);
-    }
-
+    if (this.hasActions()) cols.push(this.actionsColumnKey);
     this.displayedColumns = cols;
-  }
-
-  private getSelectableRows(): T[] {
-    return [...this.dataSource.filteredData];
-  }
-
-  private emitSelection(): void {
-    this.selectionChange.emit([...this.selection.selected]);
   }
 
   private getExportRows(): T[] {
@@ -482,24 +485,14 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
   }
 
   private formatExportValue(value: UiTableCellValue): string {
-    if (value instanceof Date) {
-      return value.toISOString();
-    }
-
-    if (value === null || value === undefined) {
-      return '';
-    }
-
-    return String(value);
+    if (value instanceof Date) return value.toISOString();
+    return value === null || value === undefined ? '' : String(value);
   }
 
   private normalizeExcelValue(
     value: UiTableCellValue
   ): string | number | boolean | Date | null {
-    if (value === undefined) {
-      return null;
-    }
-
+    if (value === undefined) return null;
     if (
       value === null ||
       typeof value === 'string' ||
@@ -509,7 +502,6 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
     ) {
       return value;
     }
-
     return String(value);
   }
 
@@ -522,11 +514,9 @@ export class UiTableComponent<T extends object> implements OnChanges, AfterViewI
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
-
     anchor.href = url;
     anchor.download = fileName;
     anchor.click();
-
     URL.revokeObjectURL(url);
   }
 

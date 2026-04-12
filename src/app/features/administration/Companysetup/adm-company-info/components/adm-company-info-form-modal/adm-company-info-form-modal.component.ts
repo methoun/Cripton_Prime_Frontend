@@ -1,27 +1,50 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+  inject,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import {
   AdmCompanyInfo,
   SaveAdmCompanyInfoRequest,
-  UpdateAdmCompanyInfoRequest
+  UpdateAdmCompanyInfoRequest,
 } from '../../models/adm-company-info.model';
 import { AdmCompanyInfoService } from '../../services/adm-company-info.service';
+
+interface CompanyInfoDialogData {
+  model?: AdmCompanyInfo | null;
+  mode?: 'create' | 'edit' | 'view';
+  closeOnBackdropClick?: boolean;
+  closeOnEsc?: boolean;
+}
 
 @Component({
   standalone: true,
   selector: 'app-adm-company-info-form-modal',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule],
   templateUrl: './adm-company-info-form-modal.component.html',
-  styleUrl: './adm-company-info-form-modal.component.scss'
+  styleUrl: './adm-company-info-form-modal.component.scss',
 })
-export class AdmCompanyInfoFormModalComponent implements OnChanges {
+export class AdmCompanyInfoFormModalComponent implements OnInit, OnChanges {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(AdmCompanyInfoService);
+  private readonly dialogRef = inject(MatDialogRef<AdmCompanyInfoFormModalComponent>, { optional: true });
+  private readonly dialogData = inject<CompanyInfoDialogData | null>(MAT_DIALOG_DATA, { optional: true });
 
   @Input() isOpen = false;
   @Input() model: AdmCompanyInfo | null = null;
+  @Input() readOnly = false;
+  @Input() closeOnBackdropClick = false;
+  @Input() closeOnEsc = true;
 
   @Output() cancel = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
@@ -42,24 +65,82 @@ export class AdmCompanyInfoFormModalComponent implements OnChanges {
     mailFrom: [''],
     setupCompWise: [false],
     sortOrder: [null as number | null],
-    isActive: [true]
+    isActive: [true],
   });
+
+  constructor() {
+    if (this.dialogData) {
+      this.model = this.dialogData.model ?? null;
+      this.readOnly = this.dialogData.mode === 'view';
+      this.closeOnBackdropClick = this.dialogData.closeOnBackdropClick ?? false;
+      this.closeOnEsc = this.dialogData.closeOnEsc ?? true;
+    }
+  }
 
   get isEdit(): boolean {
     return !!this.model?.compId;
   }
 
+  get renderInline(): boolean {
+    return !this.dialogRef;
+  }
+
+  get shouldRender(): boolean {
+    return this.renderInline ? this.isOpen : true;
+  }
+
+  get dialogTitle(): string {
+    if (this.readOnly) return 'View Company';
+    return this.isEdit ? 'Edit Company' : 'Create Company';
+  }
+
+  get submitText(): string {
+    if (this.readOnly) return 'Close';
+    if (this.saving) return this.isEdit ? 'Updating...' : 'Saving...';
+    return this.isEdit ? 'Update' : 'Save';
+  }
+
+  ngOnInit(): void {
+    this.resetForm();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['model'] || changes['isOpen']) {
+    if (changes['model'] || changes['isOpen'] || changes['readOnly']) {
       this.resetForm();
     }
   }
 
+  @HostListener('document:keydown.escape')
+  handleEscape(): void {
+    if (!this.closeOnEsc || !this.shouldRender || this.saving) {
+      return;
+    }
+
+    this.close();
+  }
+
+  onBackdropClick(): void {
+    if (!this.closeOnBackdropClick || this.saving) {
+      return;
+    }
+
+    this.close();
+  }
+
   close(): void {
+    if (this.dialogRef) {
+      this.dialogRef.close(false);
+      return;
+    }
     this.cancel.emit();
   }
 
   save(): void {
+    if (this.readOnly) {
+      this.close();
+      return;
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -80,13 +161,13 @@ export class AdmCompanyInfoFormModalComponent implements OnChanges {
       mailFrom: raw.mailFrom ?? null,
       setupCompWise: raw.setupCompWise ?? false,
       sortOrder: raw.sortOrder ?? null,
-      isActive: raw.isActive ?? true
+      isActive: raw.isActive ?? true,
     };
 
     const request$ = this.isEdit
       ? this.service.update({
           compId: this.model!.compId,
-          ...createPayload
+          ...createPayload,
         } as UpdateAdmCompanyInfoRequest)
       : this.service.create(createPayload);
 
@@ -94,7 +175,13 @@ export class AdmCompanyInfoFormModalComponent implements OnChanges {
     request$
       .pipe(finalize(() => (this.saving = false)))
       .subscribe({
-        next: () => this.saved.emit()
+        next: () => {
+          if (this.dialogRef) {
+            this.dialogRef.close(true);
+          } else {
+            this.saved.emit();
+          }
+        },
       });
   }
 
@@ -113,7 +200,13 @@ export class AdmCompanyInfoFormModalComponent implements OnChanges {
       mailFrom: this.model?.mailFrom ?? '',
       setupCompWise: this.model?.setupCompWise ?? false,
       sortOrder: this.model?.sortOrder ?? null,
-      isActive: this.model?.isActive ?? true
+      isActive: this.model?.isActive ?? true,
     });
+
+    if (this.readOnly) {
+      this.form.disable({ emitEvent: false });
+    } else {
+      this.form.enable({ emitEvent: false });
+    }
   }
 }

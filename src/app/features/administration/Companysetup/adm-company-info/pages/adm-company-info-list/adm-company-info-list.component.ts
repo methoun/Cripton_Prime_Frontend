@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import {
   UiTableAction,
@@ -15,23 +16,24 @@ import { AdmCompanyInfoService } from '../../services/adm-company-info.service';
 @Component({
   standalone: true,
   selector: 'app-adm-company-info-list',
-  imports: [CommonModule, UiTableComponent, AdmCompanyInfoFormModalComponent],
+  imports: [CommonModule, UiTableComponent, MatDialogModule],
   templateUrl: './adm-company-info-list.component.html',
   styleUrl: './adm-company-info-list.component.scss',
 })
 export class AdmCompanyInfoListComponent implements OnInit {
   private readonly service = inject(AdmCompanyInfoService);
+  private readonly dialog = inject(MatDialog);
 
   rows: AdmCompanyInfo[] = [];
-  loading = false;
-  isModalOpen = false;
+  loading = true;
+  pageReady = false;
   selectedRow: AdmCompanyInfo | null = null;
 
   readonly tableFeatures: UiTableFeatures = {
     search: true,
     sort: true,
     pagination: true,
-    selection: true,
+    selection: false,
     export: true,
     exportCsv: true,
     exportExcel: true,
@@ -40,6 +42,7 @@ export class AdmCompanyInfoListComponent implements OnInit {
     emptyState: true,
     loadingOverlay: true,
     rowClick: false,
+    horizontalScroll: true,
   };
 
   readonly columns: UiTableColumn<AdmCompanyInfo>[] = [
@@ -68,7 +71,9 @@ export class AdmCompanyInfoListComponent implements OnInit {
       header: 'Active',
       sortable: true,
       searchable: true,
-      value: (row) => (row.isActive ? 'Yes' : 'No'),
+      badge: true,
+      minWidth: '120px',
+      value: (row) => (row.isActive ? 'Active' : 'Inactive'),
     },
     {
       key: 'sortOrder',
@@ -80,6 +85,14 @@ export class AdmCompanyInfoListComponent implements OnInit {
   ];
 
   readonly actions: UiTableAction<AdmCompanyInfo>[] = [
+    {
+      key: 'view',
+      label: 'View',
+      icon: 'visibility',
+      variant: 'icon',
+      tooltip: 'View company',
+      onClick: (row) => this.view(row),
+    },
     {
       key: 'edit',
       label: 'Edit',
@@ -100,17 +113,20 @@ export class AdmCompanyInfoListComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.pageReady = true;
     this.load();
   }
 
   load(): void {
     this.loading = true;
+
     this.service.getAll().subscribe({
       next: (rows) => {
         this.rows = rows ?? [];
         this.loading = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Load failed', err);
         this.rows = [];
         this.loading = false;
       },
@@ -118,35 +134,79 @@ export class AdmCompanyInfoListComponent implements OnInit {
   }
 
   addNew(): void {
-    this.selectedRow = null;
-    this.isModalOpen = true;
+    this.openModal(null, 'create', false);
   }
 
   edit(row: AdmCompanyInfo): void {
-    this.selectedRow = { ...row };
-    this.isModalOpen = true;
+    this.openModal({ ...row }, 'edit', false);
   }
 
   remove(row: AdmCompanyInfo): void {
     if (!row.compId) return;
     if (!confirm(`Delete ${row.compName}?`)) return;
 
+    this.loading = true;
+
     this.service.delete(row.compId).subscribe({
       next: () => this.load(),
+      error: (err) => {
+        console.error('Delete failed', err);
+        this.loading = false;
+      },
     });
-  }
-
-  closeModal(): void {
-    this.isModalOpen = false;
-    this.selectedRow = null;
-  }
-
-  onSaved(): void {
-    this.closeModal();
-    this.load();
   }
 
   onSelectionChange(rows: AdmCompanyInfo[]): void {
     console.log('Selected company rows:', rows);
+  }
+
+  view(row: AdmCompanyInfo): void {
+    if (!row.compId) {
+      this.openModal({ ...row }, 'view', false);
+      return;
+    }
+
+    this.loading = true;
+
+    this.service.getById(row.compId).subscribe({
+      next: (response) => {
+        this.loading = false;
+        this.openModal(response ?? { ...row }, 'view', false);
+      },
+      error: (error) => {
+        console.error('Failed to load company details', error);
+        this.loading = false;
+        this.openModal({ ...row }, 'view', false);
+      },
+    });
+  }
+
+  private openModal(
+    model: AdmCompanyInfo | null,
+    mode: 'create' | 'edit' | 'view',
+    closeOnBackdropClick = false
+  ): void {
+    const dialogRef = this.dialog.open(AdmCompanyInfoFormModalComponent, {
+      width: 'min(1040px, 96vw)',
+      maxWidth: '96vw',
+      maxHeight: '95vh',
+      autoFocus: false,
+      restoreFocus: false,
+      disableClose: !closeOnBackdropClick,
+      panelClass: 'company-info-dialog-panel',
+      backdropClass: 'company-info-dialog-backdrop',
+      data: {
+        model,
+        mode,
+        closeOnBackdropClick,
+        closeOnEsc: true,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        this.load();
+      }
+    });
   }
 }

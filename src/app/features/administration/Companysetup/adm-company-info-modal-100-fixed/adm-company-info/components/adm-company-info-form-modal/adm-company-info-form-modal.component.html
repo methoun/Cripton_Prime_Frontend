@@ -1,0 +1,128 @@
+<ng-container *ngIf="shouldRender">
+  <div class="backdrop" *ngIf="renderInline" (click)="close()">
+    <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <ng-container *ngTemplateOutlet="modalContent"></ng-container>
+    </div>
+  </div>
+
+  <div class="modal modal--dialog" *ngIf="!renderInline" role="dialog" aria-modal="true">
+    <ng-container *ngTemplateOutlet="modalContent"></ng-container>
+  </div>
+</ng-container>
+
+<ng-template #modalContent>
+  <div class="header">
+    <div class="header__content">
+      <div class="header__badge">{{ readOnly ? 'View' : (isEdit ? 'Edit' : 'Create') }}</div>
+      <h3>{{ dialogTitle }}</h3>
+      <p class="subtitle">
+        {{ readOnly ? 'Review the company information below.' : 'Fill up the required information below.' }}
+      </p>
+    </div>
+
+    <button type="button" class="close" (click)="close()" aria-label="Close">
+      ×
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="save()" class="form">
+    <div class="form-section">
+      <div class="section-title">Basic Information</div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Company Name <span>*</span></label>
+          <input type="text" formControlName="compName" />
+        </div>
+
+        <div class="field">
+          <label>Company Name (Bangla)</label>
+          <input type="text" formControlName="compNameBng" />
+        </div>
+
+        <div class="field">
+          <label>Short Name (Eng)</label>
+          <input type="text" formControlName="shortNameEng" />
+        </div>
+
+        <div class="field">
+          <label>Short Name (Bangla)</label>
+          <input type="text" formControlName="shortNameBng" />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Address Details</div>
+
+      <div class="grid">
+        <div class="field span-2">
+          <label>Address (Eng)</label>
+          <textarea rows="3" formControlName="addressEng"></textarea>
+        </div>
+
+        <div class="field span-2">
+          <label>Address (Bangla)</label>
+          <textarea rows="3" formControlName="addressBng"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Contact & Mail Settings</div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Phone</label>
+          <input type="text" formControlName="phoneNo" />
+        </div>
+
+        <div class="field">
+          <label>Email</label>
+          <input type="email" formControlName="email" />
+        </div>
+
+        <div class="field">
+          <label>Mail Port</label>
+          <input type="number" formControlName="mailPort" />
+        </div>
+
+        <div class="field">
+          <label>Mail From</label>
+          <input type="text" formControlName="mailFrom" />
+        </div>
+
+        <div class="field">
+          <label>Mail Password</label>
+          <input type="text" formControlName="mailPass" />
+        </div>
+
+        <div class="field">
+          <label>Sort Order</label>
+          <input type="number" formControlName="sortOrder" />
+        </div>
+      </div>
+
+      <div class="check-row">
+        <label class="check">
+          <input type="checkbox" formControlName="setupCompWise" />
+          <span>Setup Company Wise</span>
+        </label>
+
+        <label class="check">
+          <input type="checkbox" formControlName="isActive" />
+          <span>Active</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-secondary" (click)="close()">
+        {{ readOnly ? 'Close' : 'Cancel' }}
+      </button>
+      <button *ngIf="!readOnly" type="submit" class="btn btn-primary" [disabled]="saving">
+        {{ submitText }}
+      </button>
+    </div>
+  </form>
+</ng-template>
